@@ -61,6 +61,10 @@ wandb/
 mlruns/
 tensorboard/
 runs/
+examples.parquet
+token_steps.parquet
+manifest.json
+metrics.json
 
 # vLLM / Hugging Face / model caches
 huggingface/

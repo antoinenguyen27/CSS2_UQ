@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mmlu-trace-eval"
+version = "0.1.0"
+description = "Modal batch app for collecting reasoning-prompted MMLU token trace datasets."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "datasets==4.0.0",
+  "huggingface_hub>=0.34.0,<1",
+  "modal==1.3.5",
+  "pyarrow>=18,<22",
+  "transformers>=4.50.0,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0,<9",
+]
+
+[tool.setuptools.packages.find]
+include = ["mmlu_trace_eval*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
