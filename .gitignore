@@ -1,0 +1,85 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build and packaging artifacts
+build/
+dist/
+site/
+.eggs/
+*.egg
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+.conda/
+conda-env/
+
+# Python tooling caches
+.python-version
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment and local config
+.env
+.env.*
+*.env
+*.local
+
+# Logs and runtime output
+*.log
+logs/
+tmp/
+temp/
+
+# Model/data artifacts
+checkpoints/
+artifacts/
+outputs/
+cache/
+.cache/
+data/
+wandb/
+mlruns/
+tensorboard/
+runs/
+
+# vLLM / Hugging Face / model caches
+huggingface/
+.huggingface/
+.hf/
+.transformers_cache/
+hf_home/
+
+# Modal local state
+.modal/
+
+# IDE / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Misc project-local noise
+coverage.xml
+*.sqlite3
+*.db
