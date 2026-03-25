@@ -97,6 +97,10 @@ For startup safety, the smoke path uses a reduced initialization profile:
 
 ## Quickstart
 
+# NOTICE: ANTOINE HAS ALREADY RUN THE EVAL AND THE DATASET
+Access the dataset at: [huggingface](https://huggingface.co/datasets/antoine3/CSS2_UQ/tree/main).
+Follow the instructions below at "Using this Dataset" to learn how it can be used. 
+
 1. Install the Modal client locally:
 
 ```bash
