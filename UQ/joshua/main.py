@@ -1,6 +1,6 @@
 """
 1D CNN on token log-probabilities for MMLU correctness prediction.
-Fixed for numpy array format from the parquet files.
+Filters out parse failures to evaluate only on valid model outputs.
 """
 
 import numpy as np
@@ -11,6 +11,7 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import brier_score_loss, accuracy_score
+from sklearn.linear_model import LogisticRegression
 import pyarrow.parquet as pq
 from pathlib import Path
 from tqdm import tqdm
@@ -49,7 +50,86 @@ def load_mmlu_trace_dataset():
     raise RuntimeError("Could not load dataset from cache")
 
 # ====================
-# 2. Dataset Preprocessing
+# 2. Diagnostic Checks
+# ====================
+def diagnostic_checks(df):
+    """Run diagnostics to understand if results are plausible."""
+    print("\n" + "="*60)
+    print("DIAGNOSTIC CHECKS")
+    print("="*60)
+    
+    # 1. Class distribution
+    correct_count = df['is_correct'].sum()
+    total = len(df)
+    print(f"\n1. Class Distribution (Parsed Examples Only):")
+    print(f"   Correct: {correct_count} ({correct_count/total:.1%})")
+    print(f"   Incorrect: {total-correct_count} ({(total-correct_count)/total:.1%})")
+    
+    # 2. Majority class baseline
+    majority_acc = max(correct_count/total, (total-correct_count)/total)
+    print(f"\n2. Majority Class Baseline:")
+    print(f"   Always predict majority class: {majority_acc:.1%} accuracy")
+    
+    # 3. Check if logprobs are correlated with correctness
+    correct_logprobs = []
+    incorrect_logprobs = []
+    
+    for idx, row in df.iterrows():
+        logprobs = row['sampled_token_logprobs']
+        if isinstance(logprobs, np.ndarray):
+            avg = np.mean(logprobs)
+            if row['is_correct']:
+                correct_logprobs.append(avg)
+            else:
+                incorrect_logprobs.append(avg)
+    
+    if correct_logprobs and incorrect_logprobs:
+        print(f"\n3. Average Logprob by Class:")
+        print(f"   Correct examples mean logprob: {np.mean(correct_logprobs):.4f}")
+        print(f"   Incorrect examples mean logprob: {np.mean(incorrect_logprobs):.4f}")
+        print(f"   Difference: {np.mean(correct_logprobs) - np.mean(incorrect_logprobs):.4f}")
+    
+    # 4. Logistic regression baseline on average logprob
+    print(f"\n4. Logistic Regression Baseline (on avg logprob):")
+    # Prepare data
+    X = []
+    y = []
+    for idx, row in df.iterrows():
+        logprobs = row['sampled_token_logprobs']
+        if isinstance(logprobs, np.ndarray) and len(logprobs) > 0:
+            X.append(np.mean(logprobs))
+            y.append(row['is_correct'])
+    
+    if len(X) > 0:
+        X = np.array(X).reshape(-1, 1)
+        y = np.array(y)
+        
+        # Split
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+        
+        # Train logistic regression
+        lr = LogisticRegression(random_state=42)
+        lr.fit(X_train, y_train)
+        y_pred_proba = lr.predict_proba(X_test)[:, 1]
+        y_pred = lr.predict(X_test)
+        
+        lr_brier = brier_score_loss(y_test, y_pred_proba)
+        lr_acc = accuracy_score(y_test, y_pred)
+        
+        print(f"   Accuracy: {lr_acc:.4f}")
+        print(f"   Brier Score: {lr_brier:.4f}")
+        
+        # Compare with majority baseline
+        majority_acc_baseline = max(y_test.mean(), 1 - y_test.mean())
+        print(f"   Majority class baseline on test set: {majority_acc_baseline:.4f}")
+    
+    return {
+        'majority_acc': majority_acc,
+        'class_balance': correct_count/total
+    }
+
+# ====================
+# 3. Dataset Preprocessing
 # ====================
 class TokenLogProbDataset(Dataset):
     """PyTorch Dataset for token log-probability sequences."""
@@ -88,7 +168,7 @@ class TokenLogProbDataset(Dataset):
             # Replace NaN/inf with pad_value
             logprobs_seq = np.nan_to_num(logprobs_seq, nan=pad_value, posinf=pad_value, neginf=pad_value)
             
-            # Truncate if needed (but we know all are length 192)
+            # Truncate if needed
             if len(logprobs_seq) > max_seq_len:
                 logprobs_seq = logprobs_seq[:max_seq_len]
             
@@ -156,7 +236,7 @@ class TokenLogProbDataset(Dataset):
         return padded, mask, label, seq_len
 
 # ====================
-# 3. 1D CNN Model
+# 4. 1D CNN Model
 # ====================
 class LogProbCNN1D(nn.Module):
     """
@@ -230,7 +310,7 @@ class LogProbCNN1D(nn.Module):
         return logit
 
 # ====================
-# 4. Training Loop
+# 5. Training Loop
 # ====================
 def train_model(model, train_loader, val_loader, epochs=50, lr=1e-3, device='cuda'):
     """Train the CNN model."""
@@ -321,7 +401,7 @@ def evaluate_model(model, loader, criterion, device='cuda'):
     return avg_loss, np.array(all_preds), np.array(all_labels)
 
 # ====================
-# 5. Baseline Comparison
+# 6. Baseline Comparison
 # ====================
 def baseline_avg_logprob(df):
     """Simple baseline: use average logprob of the sequence as prediction."""
@@ -338,8 +418,6 @@ def baseline_avg_logprob(df):
             logprobs = logprobs.astype(np.float32)
             logprobs = np.nan_to_num(logprobs, nan=-100.0, posinf=-100.0, neginf=-100.0)
             
-            # Average only valid tokens (non-zero? but zeros might be valid)
-            # Using mean of all tokens
             avg = np.mean(logprobs)
             avg_logprobs.append(avg)
             labels.append(int(row['is_correct']))
@@ -363,7 +441,7 @@ def baseline_avg_logprob(df):
     return brier, acc, pred_probs
 
 # ====================
-# 6. Main Execution
+# 7. Main Execution
 # ====================
 def main():
     print("=" * 60)
@@ -374,21 +452,49 @@ def main():
     df = load_mmlu_trace_dataset()
     
     print(f"\nTotal examples: {len(df)}")
-    print(f"Columns: {df.columns.tolist()[:10]}...")  # Show first 10 columns
+    
+    # ========== FILTER OUT PARSE FAILURES ==========
+    print("\n" + "="*60)
+    print("DATA QUALITY CHECK")
+    print("="*60)
+    
+    if 'parse_success' in df.columns:
+        parse_success_count = df['parse_success'].sum()
+        parse_failure_count = len(df) - parse_success_count
+        print(f"Parse successes: {parse_success_count} ({parse_success_count/len(df)*100:.1f}%)")
+        print(f"Parse failures: {parse_failure_count} ({parse_failure_count/len(df)*100:.1f}%)")
+        
+        # Filter to only successfully parsed examples
+        df = df[df['parse_success'] == True].reset_index(drop=True)
+        print(f"\nFiltered to parsed examples only: {len(df)} examples")
+        print(f"Correct answers in parsed examples: {df['is_correct'].mean()*100:.1f}%")
+    else:
+        print("Warning: 'parse_success' column not found - using all examples")
+    
+    if len(df) == 0:
+        print("ERROR: No successfully parsed examples found!")
+        return None, None, None
+    
+    # ========== DIAGNOSTIC CHECKS ==========
+    diagnostic_checks(df)
+    
+    # ========== PREPARE DATA FOR TRAINING ==========
+    print("\n" + "="*60)
+    print("PREPARING DATA FOR TRAINING")
+    print("="*60)
     
     # Check data
     sample_logprobs = df['sampled_token_logprobs'].iloc[0]
     print(f"\nSample logprobs shape: {sample_logprobs.shape if hasattr(sample_logprobs, 'shape') else 'N/A'}")
-    print(f"Sample logprobs dtype: {sample_logprobs.dtype if hasattr(sample_logprobs, 'dtype') else 'N/A'}")
     
     # Filter out rows with invalid logprobs
     valid_mask = df['sampled_token_logprobs'].apply(lambda x: isinstance(x, np.ndarray) and len(x) > 0)
     df = df[valid_mask].reset_index(drop=True)
     
-    print(f"\nValid examples after filtering: {len(df)}")
+    print(f"Valid examples after filtering: {len(df)}")
     
     if len(df) == 0:
-        print("ERROR: No valid examples found")
+        print("ERROR: No valid examples after filtering")
         return None, None, None
     
     # Get sequence lengths
@@ -455,7 +561,7 @@ def main():
     test_brier = brier_score_loss(test_labels, test_preds)
     test_acc = accuracy_score(test_labels, test_preds > 0.5)
     
-    print(f"\n1D CNN Results:")
+    print(f"\n1D CNN Results (on correctly parsed examples only):")
     print(f"  Brier Score: {test_brier:.4f}")
     print(f"  Accuracy: {test_acc:.4f}")
     print(f"  Test Loss: {test_loss:.4f}")
