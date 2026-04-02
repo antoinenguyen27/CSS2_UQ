@@ -1,0 +1,1811 @@
+Tests
+--default
+--conv_channels 32,64,64 --kernel_sizes 3,5,7 --dropout 0.3
+--conv_channels 128,256,256 --kernel_sizes 5,7,9 --dropout 0.3
+--dropout 0.2
+--dropout 0.4
+--dropout 0.5
+--lr 5e-4
+--lr 2e-3
+--batch_size 32
+--batch_size 128
+--use_top20
+
+--dropout 0.2 --lr 5e-4
+--dropout 0.2 --lr 5e-4 --conv_channels 128,256,256 --kernel_sizes 5,7,9
+--dropout 0.2 --lr 5e-4 --batch_size 32
+--dropout 0.2 --lr 5e-4 --use_top20
+
+============================================================
+Loading MMLU Trace Dataset --default
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 347344.6820 | Val Loss: 4892.1134 | Val Brier: 0.1275
+  -> New best model! Brier: 0.1275
+Epoch 2/50 | Train Loss: 6777.6528 | Val Loss: 488.5862 | Val Brier: 0.1274
+  -> New best model! Brier: 0.1274
+Epoch 3/50 | Train Loss: 854.3276 | Val Loss: 58.4136 | Val Brier: 0.1273
+  -> New best model! Brier: 0.1273
+Epoch 4/50 | Train Loss: 212.2157 | Val Loss: 5.9320 | Val Brier: 0.1193
+  -> New best model! Brier: 0.1193
+Epoch 5/50 | Train Loss: 117.3015 | Val Loss: 3.5910 | Val Brier: 0.1421
+Epoch 6/50 | Train Loss: 62.4282 | Val Loss: 0.4682 | Val Brier: 0.1428
+Epoch 7/50 | Train Loss: 36.2652 | Val Loss: 0.4395 | Val Brier: 0.1310
+Epoch 8/50 | Train Loss: 36.6035 | Val Loss: 0.3893 | Val Brier: 0.1128
+  -> New best model! Brier: 0.1128
+Epoch 9/50 | Train Loss: 27.4422 | Val Loss: 0.4092 | Val Brier: 0.1195
+Epoch 10/50 | Train Loss: 24.4600 | Val Loss: 0.4080 | Val Brier: 0.1180
+Epoch 11/50 | Train Loss: 23.0134 | Val Loss: 0.3913 | Val Brier: 0.1132
+Epoch 12/50 | Train Loss: 14.5793 | Val Loss: 0.3895 | Val Brier: 0.1117
+  -> New best model! Brier: 0.1117
+Epoch 13/50 | Train Loss: 11.2334 | Val Loss: 0.5143 | Val Brier: 0.1198
+Epoch 14/50 | Train Loss: 11.3948 | Val Loss: 0.4035 | Val Brier: 0.1143
+Epoch 15/50 | Train Loss: 5.6528 | Val Loss: 0.4266 | Val Brier: 0.1259
+Epoch 16/50 | Train Loss: 6.5113 | Val Loss: 0.4008 | Val Brier: 0.1161
+Epoch 17/50 | Train Loss: 10.3584 | Val Loss: 0.3848 | Val Brier: 0.1112
+  -> New best model! Brier: 0.1112
+Epoch 18/50 | Train Loss: 12.7330 | Val Loss: 0.4562 | Val Brier: 0.1374
+Epoch 19/50 | Train Loss: 7.0204 | Val Loss: 0.3851 | Val Brier: 0.1111
+  -> New best model! Brier: 0.1111
+Epoch 20/50 | Train Loss: 6.0332 | Val Loss: 0.3844 | Val Brier: 0.1108
+  -> New best model! Brier: 0.1108
+Epoch 21/50 | Train Loss: 3.8686 | Val Loss: 0.3864 | Val Brier: 0.1119
+Epoch 22/50 | Train Loss: 5.3780 | Val Loss: 0.3958 | Val Brier: 0.1148
+Epoch 23/50 | Train Loss: 4.9225 | Val Loss: 0.4031 | Val Brier: 0.1126
+Epoch 24/50 | Train Loss: 11.0739 | Val Loss: 0.3836 | Val Brier: 0.1110
+Epoch 25/50 | Train Loss: 10.5886 | Val Loss: 0.4086 | Val Brier: 0.1192
+Epoch 26/50 | Train Loss: 7.8706 | Val Loss: 0.3857 | Val Brier: 0.1113
+Epoch 27/50 | Train Loss: 3.9496 | Val Loss: 0.4210 | Val Brier: 0.1236
+Epoch 28/50 | Train Loss: 8.4907 | Val Loss: 0.3851 | Val Brier: 0.1116
+Epoch 29/50 | Train Loss: 2.9831 | Val Loss: 0.3858 | Val Brier: 0.1118
+Epoch 30/50 | Train Loss: 4.1814 | Val Loss: 0.3815 | Val Brier: 0.1104
+  -> New best model! Brier: 0.1104
+Epoch 31/50 | Train Loss: 2.8839 | Val Loss: 0.4448 | Val Brier: 0.1328
+Epoch 32/50 | Train Loss: 8.0638 | Val Loss: 0.4061 | Val Brier: 0.1183
+Epoch 33/50 | Train Loss: 2.6105 | Val Loss: 0.4173 | Val Brier: 0.1223
+Epoch 34/50 | Train Loss: 5.1615 | Val Loss: 0.4078 | Val Brier: 0.1189
+Epoch 35/50 | Train Loss: 1.2063 | Val Loss: 0.4407 | Val Brier: 0.1312
+Epoch 36/50 | Train Loss: 2.8185 | Val Loss: 0.4044 | Val Brier: 0.1178
+Epoch 37/50 | Train Loss: 2.7684 | Val Loss: 0.4291 | Val Brier: 0.1267
+Epoch 38/50 | Train Loss: 0.8750 | Val Loss: 0.3961 | Val Brier: 0.1151
+Epoch 39/50 | Train Loss: 5.5262 | Val Loss: 0.3836 | Val Brier: 0.1112
+Epoch 40/50 | Train Loss: 4.3344 | Val Loss: 0.3845 | Val Brier: 0.1115
+Early stopping at epoch 40
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1105
+  Accuracy: 0.8729
+  Test Loss: 0.3784
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.1054 (48.8% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1105
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --conv_channels 32,64,64 --kernel_sizes 3,5,7 --dropout 0.3
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities 
+============================================================
+Epoch 1/50 | Train Loss: 262548.1313 | Val Loss: 21442.4156 | Val Brier: 0.1269
+  -> New best model! Brier: 0.1269
+Epoch 2/50 | Train Loss: 9401.8464 | Val Loss: 495.5039 | Val Brier: 0.3829
+Epoch 3/50 | Train Loss: 1648.8220 | Val Loss: 219.0235 | Val Brier: 0.6078
+Epoch 4/50 | Train Loss: 804.6236 | Val Loss: 84.2787 | Val Brier: 0.1455
+Epoch 5/50 | Train Loss: 443.0992 | Val Loss: 16.2781 | Val Brier: 0.1454
+Epoch 6/50 | Train Loss: 251.0128 | Val Loss: 4.0779 | Val Brier: 0.1453
+Epoch 7/50 | Train Loss: 186.7679 | Val Loss: 1.0288 | Val Brier: 0.1366
+Epoch 8/50 | Train Loss: 119.6720 | Val Loss: 0.3875 | Val Brier: 0.1130
+  -> New best model! Brier: 0.1130
+Epoch 9/50 | Train Loss: 102.1572 | Val Loss: 0.8368 | Val Brier: 0.1254
+Epoch 10/50 | Train Loss: 86.0138 | Val Loss: 0.5281 | Val Brier: 0.1699
+Epoch 11/50 | Train Loss: 73.3687 | Val Loss: 0.5752 | Val Brier: 0.1919
+Epoch 12/50 | Train Loss: 56.6164 | Val Loss: 0.5660 | Val Brier: 0.1872
+Epoch 13/50 | Train Loss: 54.9621 | Val Loss: 0.5483 | Val Brier: 0.1787
+Epoch 14/50 | Train Loss: 39.0586 | Val Loss: 0.5329 | Val Brier: 0.1714
+Epoch 15/50 | Train Loss: 50.2092 | Val Loss: 0.5264 | Val Brier: 0.1684
+Epoch 16/50 | Train Loss: 38.6782 | Val Loss: 0.5202 | Val Brier: 0.1655
+Epoch 17/50 | Train Loss: 29.1780 | Val Loss: 0.5145 | Val Brier: 0.1629
+Epoch 18/50 | Train Loss: 38.4918 | Val Loss: 0.5091 | Val Brier: 0.1604
+Early stopping at epoch 18
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1162
+  Accuracy: 0.8729
+  Test Loss: 0.3938
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0997 (46.2% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1162
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --conv_channels 128,256,256 --kernel_sizes 5,7,9 --dropout 0.3
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 266339.1803 | Val Loss: 5759.3219 | Val Brier: 0.1272
+  -> New best model! Brier: 0.1272
+Epoch 2/50 | Train Loss: 6152.7953 | Val Loss: 380.2588 | Val Brier: 0.1272
+Epoch 3/50 | Train Loss: 934.8210 | Val Loss: 73.6029 | Val Brier: 0.1529
+Epoch 4/50 | Train Loss: 381.9590 | Val Loss: 8.2706 | Val Brier: 0.1268
+  -> New best model! Brier: 0.1268
+Epoch 5/50 | Train Loss: 169.2336 | Val Loss: 2.1568 | Val Brier: 0.1149
+  -> New best model! Brier: 0.1149
+Epoch 6/50 | Train Loss: 108.1216 | Val Loss: 0.4341 | Val Brier: 0.1299
+Epoch 7/50 | Train Loss: 57.1815 | Val Loss: 0.3824 | Val Brier: 0.1113
+  -> New best model! Brier: 0.1113
+Epoch 8/50 | Train Loss: 43.2949 | Val Loss: 0.4690 | Val Brier: 0.1431
+Epoch 9/50 | Train Loss: 23.7912 | Val Loss: 0.4288 | Val Brier: 0.1271
+Epoch 10/50 | Train Loss: 18.1744 | Val Loss: 0.4006 | Val Brier: 0.1169
+Epoch 11/50 | Train Loss: 20.2948 | Val Loss: 0.4047 | Val Brier: 0.1182
+Epoch 12/50 | Train Loss: 16.6921 | Val Loss: 0.3790 | Val Brier: 0.1104
+  -> New best model! Brier: 0.1104
+Epoch 13/50 | Train Loss: 12.2447 | Val Loss: 0.4186 | Val Brier: 0.1230
+Epoch 14/50 | Train Loss: 11.3840 | Val Loss: 0.3799 | Val Brier: 0.1105
+Epoch 15/50 | Train Loss: 11.4697 | Val Loss: 0.4438 | Val Brier: 0.1324
+Epoch 16/50 | Train Loss: 8.3430 | Val Loss: 0.3906 | Val Brier: 0.1134
+Epoch 17/50 | Train Loss: 9.8709 | Val Loss: 0.4063 | Val Brier: 0.1150
+Epoch 18/50 | Train Loss: 11.6953 | Val Loss: 0.4068 | Val Brier: 0.1187
+Epoch 19/50 | Train Loss: 5.6452 | Val Loss: 0.4026 | Val Brier: 0.1173
+Epoch 20/50 | Train Loss: 5.8687 | Val Loss: 0.3798 | Val Brier: 0.1102
+  -> New best model! Brier: 0.1102
+Epoch 21/50 | Train Loss: 5.5502 | Val Loss: 0.4388 | Val Brier: 0.1304
+Epoch 22/50 | Train Loss: 4.6795 | Val Loss: 0.4066 | Val Brier: 0.1185
+Epoch 23/50 | Train Loss: 5.3070 | Val Loss: 0.3761 | Val Brier: 0.1093
+  -> New best model! Brier: 0.1093
+Epoch 24/50 | Train Loss: 3.2352 | Val Loss: 0.3776 | Val Brier: 0.1096
+Epoch 25/50 | Train Loss: 10.9455 | Val Loss: 0.3764 | Val Brier: 0.1090
+  -> New best model! Brier: 0.1090
+Epoch 26/50 | Train Loss: 5.8617 | Val Loss: 0.3961 | Val Brier: 0.1150
+Epoch 27/50 | Train Loss: 5.6206 | Val Loss: 0.3748 | Val Brier: 0.1089
+  -> New best model! Brier: 0.1089
+Epoch 28/50 | Train Loss: 6.6704 | Val Loss: 0.3736 | Val Brier: 0.1087
+  -> New best model! Brier: 0.1087
+Epoch 29/50 | Train Loss: 6.7171 | Val Loss: 0.4900 | Val Brier: 0.1519
+Epoch 30/50 | Train Loss: 4.4326 | Val Loss: 0.4092 | Val Brier: 0.1194
+Epoch 31/50 | Train Loss: 4.4587 | Val Loss: 0.4724 | Val Brier: 0.1170
+Epoch 32/50 | Train Loss: 7.1100 | Val Loss: 0.4645 | Val Brier: 0.1414
+Epoch 33/50 | Train Loss: 10.0217 | Val Loss: 0.4574 | Val Brier: 0.1386
+Epoch 34/50 | Train Loss: 4.6970 | Val Loss: 0.4235 | Val Brier: 0.1246
+Epoch 35/50 | Train Loss: 8.0867 | Val Loss: 0.3957 | Val Brier: 0.1149
+Epoch 36/50 | Train Loss: 4.9441 | Val Loss: 0.3841 | Val Brier: 0.1114
+Epoch 37/50 | Train Loss: 4.8287 | Val Loss: 0.3929 | Val Brier: 0.1140
+Epoch 38/50 | Train Loss: 1.9903 | Val Loss: 0.4061 | Val Brier: 0.1183
+Early stopping at epoch 38
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1127
+  Accuracy: 0.8729
+  Test Loss: 0.3877
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.1032 (47.8% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1127
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --dropout 0.2
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 207881.8040 | Val Loss: 10261.2653 | Val Brier: 0.1276
+  -> New best model! Brier: 0.1276
+Epoch 2/50 | Train Loss: 5651.6221 | Val Loss: 480.8361 | Val Brier: 0.3423
+Epoch 3/50 | Train Loss: 1124.9395 | Val Loss: 235.9509 | Val Brier: 0.3111
+Epoch 4/50 | Train Loss: 540.3872 | Val Loss: 109.9248 | Val Brier: 0.1273
+  -> New best model! Brier: 0.1273
+Epoch 5/50 | Train Loss: 259.6700 | Val Loss: 70.0904 | Val Brier: 0.1273
+  -> New best model! Brier: 0.1273
+Epoch 6/50 | Train Loss: 54.6743 | Val Loss: 20.2612 | Val Brier: 0.2101
+Epoch 7/50 | Train Loss: 38.6113 | Val Loss: 39.7617 | Val Brier: 0.1687
+Epoch 8/50 | Train Loss: 20.9507 | Val Loss: 20.0495 | Val Brier: 0.3814
+Epoch 9/50 | Train Loss: 17.3818 | Val Loss: 21.6047 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 10/50 | Train Loss: 30.0598 | Val Loss: 11.9269 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 11/50 | Train Loss: 18.4872 | Val Loss: 1.8165 | Val Brier: 0.1099
+  -> New best model! Brier: 0.1099
+Epoch 12/50 | Train Loss: 1.4717 | Val Loss: 0.3764 | Val Brier: 0.1095
+  -> New best model! Brier: 0.1095
+Epoch 13/50 | Train Loss: 0.5178 | Val Loss: 0.3762 | Val Brier: 0.1095
+  -> New best model! Brier: 0.1095
+Epoch 14/50 | Train Loss: 1.0614 | Val Loss: 0.3771 | Val Brier: 0.1097
+Epoch 15/50 | Train Loss: 0.4005 | Val Loss: 0.3783 | Val Brier: 0.1100
+Epoch 16/50 | Train Loss: 0.3959 | Val Loss: 0.3761 | Val Brier: 0.1094
+  -> New best model! Brier: 0.1094
+Epoch 17/50 | Train Loss: 0.4026 | Val Loss: 0.3766 | Val Brier: 0.1095
+Epoch 18/50 | Train Loss: 0.4014 | Val Loss: 0.3774 | Val Brier: 0.1097
+Epoch 19/50 | Train Loss: 0.4004 | Val Loss: 0.3773 | Val Brier: 0.1097
+Epoch 20/50 | Train Loss: 0.3978 | Val Loss: 0.3760 | Val Brier: 0.1094
+  -> New best model! Brier: 0.1094
+Epoch 21/50 | Train Loss: 0.3941 | Val Loss: 0.3765 | Val Brier: 0.1095
+Epoch 22/50 | Train Loss: 0.3877 | Val Loss: 0.3756 | Val Brier: 0.1093
+  -> New best model! Brier: 0.1093
+Epoch 23/50 | Train Loss: 0.3930 | Val Loss: 0.3762 | Val Brier: 0.1094
+Epoch 24/50 | Train Loss: 0.3917 | Val Loss: 0.3758 | Val Brier: 0.1093
+Epoch 25/50 | Train Loss: 0.3893 | Val Loss: 0.3757 | Val Brier: 0.1093
+Epoch 26/50 | Train Loss: 0.7684 | Val Loss: 0.3755 | Val Brier: 0.1093
+  -> New best model! Brier: 0.1093
+Epoch 27/50 | Train Loss: 0.3884 | Val Loss: 0.3760 | Val Brier: 0.1094
+Epoch 28/50 | Train Loss: 0.8127 | Val Loss: 0.3753 | Val Brier: 0.1092
+  -> New best model! Brier: 0.1092
+Epoch 29/50 | Train Loss: 0.3899 | Val Loss: 0.3760 | Val Brier: 0.1094
+Epoch 30/50 | Train Loss: 0.7541 | Val Loss: 0.4233 | Val Brier: 0.1098
+Epoch 31/50 | Train Loss: 0.5102 | Val Loss: 0.3751 | Val Brier: 0.1092
+  -> New best model! Brier: 0.1092
+Epoch 32/50 | Train Loss: 0.3843 | Val Loss: 0.3751 | Val Brier: 0.1092
+Epoch 33/50 | Train Loss: 0.3861 | Val Loss: 0.3756 | Val Brier: 0.1093
+Epoch 34/50 | Train Loss: 0.3883 | Val Loss: 0.3781 | Val Brier: 0.1098
+Epoch 35/50 | Train Loss: 0.3857 | Val Loss: 0.3757 | Val Brier: 0.1093
+Epoch 36/50 | Train Loss: 0.3882 | Val Loss: 0.3761 | Val Brier: 0.1093
+Epoch 37/50 | Train Loss: 0.3849 | Val Loss: 0.3748 | Val Brier: 0.1091
+  -> New best model! Brier: 0.1091
+Epoch 38/50 | Train Loss: 0.3859 | Val Loss: 0.3757 | Val Brier: 0.1093
+Epoch 39/50 | Train Loss: 0.3857 | Val Loss: 0.3762 | Val Brier: 0.1094
+Epoch 40/50 | Train Loss: 0.3833 | Val Loss: 0.3753 | Val Brier: 0.1092
+Epoch 41/50 | Train Loss: 0.3839 | Val Loss: 0.3760 | Val Brier: 0.1093
+Epoch 42/50 | Train Loss: 0.3850 | Val Loss: 0.3753 | Val Brier: 0.1092
+Epoch 43/50 | Train Loss: 0.6746 | Val Loss: 0.3745 | Val Brier: 0.1090
+  -> New best model! Brier: 0.1090
+Epoch 44/50 | Train Loss: 0.3809 | Val Loss: 0.3751 | Val Brier: 0.1091
+Epoch 45/50 | Train Loss: 0.3834 | Val Loss: 0.3747 | Val Brier: 0.1090
+Epoch 46/50 | Train Loss: 0.3817 | Val Loss: 0.3759 | Val Brier: 0.1093
+Epoch 47/50 | Train Loss: 0.3807 | Val Loss: 0.3750 | Val Brier: 0.1091
+Epoch 48/50 | Train Loss: 0.3837 | Val Loss: 0.3743 | Val Brier: 0.1089
+  -> New best model! Brier: 0.1089
+Epoch 49/50 | Train Loss: 0.3806 | Val Loss: 0.3737 | Val Brier: 0.1089
+  -> New best model! Brier: 0.1089
+Epoch 50/50 | Train Loss: 0.5372 | Val Loss: 0.3739 | Val Brier: 0.1089
+  -> New best model! Brier: 0.1089
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1094
+  Accuracy: 0.8729
+  Test Loss: 0.3740
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.1065 (49.3% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1094
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --dropout 0.4
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 152719.7189 | Val Loss: 1044.2887 | Val Brier: 0.1270
+  -> New best model! Brier: 0.1270
+Epoch 2/50 | Train Loss: 2057.9728 | Val Loss: 498.7028 | Val Brier: 0.1269
+  -> New best model! Brier: 0.1269
+Epoch 3/50 | Train Loss: 556.0807 | Val Loss: 36.6508 | Val Brier: 0.1266
+  -> New best model! Brier: 0.1266
+Epoch 4/50 | Train Loss: 150.8234 | Val Loss: 0.5143 | Val Brier: 0.1632
+Epoch 5/50 | Train Loss: 48.9224 | Val Loss: 0.4959 | Val Brier: 0.1546
+Epoch 6/50 | Train Loss: 21.7892 | Val Loss: 0.4353 | Val Brier: 0.1291
+Epoch 7/50 | Train Loss: 21.9992 | Val Loss: 0.4055 | Val Brier: 0.1180
+  -> New best model! Brier: 0.1180
+Epoch 8/50 | Train Loss: 16.6191 | Val Loss: 0.4006 | Val Brier: 0.1163
+  -> New best model! Brier: 0.1163
+Epoch 9/50 | Train Loss: 13.0794 | Val Loss: 0.3963 | Val Brier: 0.1149
+  -> New best model! Brier: 0.1149
+Epoch 10/50 | Train Loss: 15.2900 | Val Loss: 0.4303 | Val Brier: 0.1271
+Epoch 11/50 | Train Loss: 14.3999 | Val Loss: 0.3986 | Val Brier: 0.1144
+  -> New best model! Brier: 0.1144
+Epoch 12/50 | Train Loss: 7.3272 | Val Loss: 0.3868 | Val Brier: 0.1109
+  -> New best model! Brier: 0.1109
+Epoch 13/50 | Train Loss: 12.8843 | Val Loss: 0.3837 | Val Brier: 0.1107
+  -> New best model! Brier: 0.1107
+Epoch 14/50 | Train Loss: 14.5569 | Val Loss: 0.4106 | Val Brier: 0.1198
+Epoch 15/50 | Train Loss: 13.5731 | Val Loss: 0.4095 | Val Brier: 0.1195
+Epoch 16/50 | Train Loss: 7.6940 | Val Loss: 0.4129 | Val Brier: 0.1206
+Epoch 17/50 | Train Loss: 4.4129 | Val Loss: 0.3809 | Val Brier: 0.1104
+  -> New best model! Brier: 0.1104
+Epoch 18/50 | Train Loss: 6.7969 | Val Loss: 0.3831 | Val Brier: 0.1110
+Epoch 19/50 | Train Loss: 144.5601 | Val Loss: 0.3940 | Val Brier: 0.1142
+Epoch 20/50 | Train Loss: 24.3023 | Val Loss: 0.3918 | Val Brier: 0.1136
+Epoch 21/50 | Train Loss: 13.3672 | Val Loss: 0.4234 | Val Brier: 0.1245
+Epoch 22/50 | Train Loss: 8.8422 | Val Loss: 0.4341 | Val Brier: 0.1288
+Epoch 23/50 | Train Loss: 13.8288 | Val Loss: 0.4015 | Val Brier: 0.1170
+Epoch 24/50 | Train Loss: 4.7650 | Val Loss: 0.3837 | Val Brier: 0.1111
+Epoch 25/50 | Train Loss: 4.5757 | Val Loss: 0.3782 | Val Brier: 0.1097
+  -> New best model! Brier: 0.1097
+Epoch 26/50 | Train Loss: 3.7738 | Val Loss: 0.3782 | Val Brier: 0.1096
+  -> New best model! Brier: 0.1096
+Epoch 27/50 | Train Loss: 1.6786 | Val Loss: 0.3818 | Val Brier: 0.1107
+Epoch 28/50 | Train Loss: 2.5122 | Val Loss: 0.3909 | Val Brier: 0.1112
+Epoch 29/50 | Train Loss: 3.7417 | Val Loss: 0.3789 | Val Brier: 0.1097
+Epoch 30/50 | Train Loss: 2.3150 | Val Loss: 0.3848 | Val Brier: 0.1104
+Epoch 31/50 | Train Loss: 2.0390 | Val Loss: 0.3843 | Val Brier: 0.1110
+Epoch 32/50 | Train Loss: 4.5235 | Val Loss: 0.4023 | Val Brier: 0.1170
+Epoch 33/50 | Train Loss: 4.3701 | Val Loss: 0.3947 | Val Brier: 0.1145
+Epoch 34/50 | Train Loss: 2.6962 | Val Loss: 0.4076 | Val Brier: 0.1188
+Epoch 35/50 | Train Loss: 3.0927 | Val Loss: 0.3792 | Val Brier: 0.1099
+Epoch 36/50 | Train Loss: 2.2318 | Val Loss: 0.4126 | Val Brier: 0.1205
+Early stopping at epoch 36
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1105
+  Accuracy: 0.8729
+  Test Loss: 0.3782
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.1053 (48.8% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1105
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --dropout 0.5
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 218922.6904 | Val Loss: 5318.6340 | Val Brier: 0.1272
+  -> New best model! Brier: 0.1272
+Epoch 2/50 | Train Loss: 6407.3225 | Val Loss: 78.0424 | Val Brier: 0.5447
+Epoch 3/50 | Train Loss: 1585.2048 | Val Loss: 9.0496 | Val Brier: 0.2258
+Epoch 4/50 | Train Loss: 292.5404 | Val Loss: 0.6589 | Val Brier: 0.2329
+Epoch 5/50 | Train Loss: 96.0695 | Val Loss: 0.6353 | Val Brier: 0.2211
+Epoch 6/50 | Train Loss: 49.0809 | Val Loss: 0.6155 | Val Brier: 0.2113
+Epoch 7/50 | Train Loss: 250.8651 | Val Loss: 0.5985 | Val Brier: 0.2030
+Epoch 8/50 | Train Loss: 10.3895 | Val Loss: 0.5830 | Val Brier: 0.1954
+Epoch 9/50 | Train Loss: 12.0417 | Val Loss: 0.5690 | Val Brier: 0.1886
+Epoch 10/50 | Train Loss: 42.9196 | Val Loss: 0.5564 | Val Brier: 0.1825
+Epoch 11/50 | Train Loss: 8.0020 | Val Loss: 0.5446 | Val Brier: 0.1769
+Early stopping at epoch 11
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1337
+  Accuracy: 0.8402
+  Test Loss: 5407.6011
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0821 (38.0% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1337
+Test Accuracy: 0.8402
+============================================================
+Loading MMLU Trace Dataset --lr 5e-4
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 372157.0082 | Val Loss: 4718.7774 | Val Brier: 0.1276
+  -> New best model! Brier: 0.1276
+Epoch 2/50 | Train Loss: 3373.6952 | Val Loss: 598.2710 | Val Brier: 0.1277
+Epoch 3/50 | Train Loss: 493.1068 | Val Loss: 102.6031 | Val Brier: 0.1499
+Epoch 4/50 | Train Loss: 86.8231 | Val Loss: 28.4491 | Val Brier: 0.2388
+Epoch 5/50 | Train Loss: 57.8328 | Val Loss: 22.2309 | Val Brier: 0.2187
+Epoch 6/50 | Train Loss: 21.6391 | Val Loss: 7.6841 | Val Brier: 0.2056
+Epoch 7/50 | Train Loss: 47.4707 | Val Loss: 103.5808 | Val Brier: 0.1258
+  -> New best model! Brier: 0.1258
+Epoch 8/50 | Train Loss: 30.5258 | Val Loss: 12.0981 | Val Brier: 0.1751
+Epoch 9/50 | Train Loss: 15.9869 | Val Loss: 10.6270 | Val Brier: 0.1694
+Epoch 10/50 | Train Loss: 22.7003 | Val Loss: 6.6229 | Val Brier: 0.1539
+Epoch 11/50 | Train Loss: 14.5563 | Val Loss: 3.6985 | Val Brier: 0.1443
+Epoch 12/50 | Train Loss: 18.9247 | Val Loss: 5.9393 | Val Brier: 0.1305
+Epoch 13/50 | Train Loss: 13.7114 | Val Loss: 6.2642 | Val Brier: 0.1310
+Epoch 14/50 | Train Loss: 18.7552 | Val Loss: 4.8372 | Val Brier: 0.1240
+  -> New best model! Brier: 0.1240
+Epoch 15/50 | Train Loss: 18.4465 | Val Loss: 1.3373 | Val Brier: 0.1183
+  -> New best model! Brier: 0.1183
+Epoch 16/50 | Train Loss: 12.9741 | Val Loss: 5.0430 | Val Brier: 0.1156
+  -> New best model! Brier: 0.1156
+Epoch 17/50 | Train Loss: 11.0039 | Val Loss: 6.3728 | Val Brier: 0.1146
+  -> New best model! Brier: 0.1146
+Epoch 18/50 | Train Loss: 10.4959 | Val Loss: 2.0637 | Val Brier: 0.1133
+  -> New best model! Brier: 0.1133
+Epoch 19/50 | Train Loss: 8.0754 | Val Loss: 4.9409 | Val Brier: 0.1123
+  -> New best model! Brier: 0.1123
+Epoch 20/50 | Train Loss: 310.6511 | Val Loss: 29.0675 | Val Brier: 0.1186
+Epoch 21/50 | Train Loss: 16.1749 | Val Loss: 4.1897 | Val Brier: 0.1115
+  -> New best model! Brier: 0.1115
+Epoch 22/50 | Train Loss: 10.5485 | Val Loss: 6.1895 | Val Brier: 0.1112
+  -> New best model! Brier: 0.1112
+Epoch 23/50 | Train Loss: 8.2851 | Val Loss: 3.8680 | Val Brier: 0.1111
+  -> New best model! Brier: 0.1111
+Epoch 24/50 | Train Loss: 7.0807 | Val Loss: 4.1135 | Val Brier: 0.1110
+  -> New best model! Brier: 0.1110
+Epoch 25/50 | Train Loss: 2.5440 | Val Loss: 4.7893 | Val Brier: 0.1109
+  -> New best model! Brier: 0.1109
+Epoch 26/50 | Train Loss: 1.9407 | Val Loss: 0.3807 | Val Brier: 0.1105
+  -> New best model! Brier: 0.1105
+Epoch 27/50 | Train Loss: 0.3873 | Val Loss: 0.3803 | Val Brier: 0.1104
+  -> New best model! Brier: 0.1104
+Epoch 28/50 | Train Loss: 0.3858 | Val Loss: 0.3800 | Val Brier: 0.1103
+  -> New best model! Brier: 0.1103
+Epoch 29/50 | Train Loss: 0.3872 | Val Loss: 0.3798 | Val Brier: 0.1102
+  -> New best model! Brier: 0.1102
+Epoch 30/50 | Train Loss: 0.3855 | Val Loss: 0.3797 | Val Brier: 0.1102
+  -> New best model! Brier: 0.1102
+Epoch 31/50 | Train Loss: 0.3873 | Val Loss: 0.3795 | Val Brier: 0.1102
+  -> New best model! Brier: 0.1102
+Epoch 32/50 | Train Loss: 0.3828 | Val Loss: 0.3793 | Val Brier: 0.1101
+  -> New best model! Brier: 0.1101
+Epoch 33/50 | Train Loss: 0.3855 | Val Loss: 0.3792 | Val Brier: 0.1101
+  -> New best model! Brier: 0.1101
+Epoch 34/50 | Train Loss: 0.3864 | Val Loss: 0.3792 | Val Brier: 0.1101
+  -> New best model! Brier: 0.1101
+Epoch 35/50 | Train Loss: 0.6899 | Val Loss: 0.4811 | Val Brier: 0.1105
+Epoch 36/50 | Train Loss: 0.4265 | Val Loss: 0.3791 | Val Brier: 0.1101
+  -> New best model! Brier: 0.1101
+Epoch 37/50 | Train Loss: 1.4547 | Val Loss: 0.3790 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 38/50 | Train Loss: 0.3857 | Val Loss: 0.3789 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 39/50 | Train Loss: 0.3894 | Val Loss: 0.3789 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 40/50 | Train Loss: 0.3879 | Val Loss: 0.3788 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 41/50 | Train Loss: 0.3857 | Val Loss: 0.3788 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 42/50 | Train Loss: 0.3836 | Val Loss: 0.3787 | Val Brier: 0.1100
+  -> New best model! Brier: 0.1100
+Epoch 43/50 | Train Loss: 0.3828 | Val Loss: 0.3786 | Val Brier: 0.1099
+  -> New best model! Brier: 0.1099
+Epoch 44/50 | Train Loss: 0.3841 | Val Loss: 0.3785 | Val Brier: 0.1099
+  -> New best model! Brier: 0.1099
+Epoch 45/50 | Train Loss: 0.3851 | Val Loss: 0.3784 | Val Brier: 0.1099
+  -> New best model! Brier: 0.1099
+Epoch 46/50 | Train Loss: 0.3836 | Val Loss: 0.3783 | Val Brier: 0.1099
+  -> New best model! Brier: 0.1099
+Epoch 47/50 | Train Loss: 0.3839 | Val Loss: 0.3783 | Val Brier: 0.1099
+Epoch 48/50 | Train Loss: 0.3806 | Val Loss: 0.3782 | Val Brier: 0.1098
+  -> New best model! Brier: 0.1098
+Epoch 49/50 | Train Loss: 0.3826 | Val Loss: 0.3785 | Val Brier: 0.1099
+Epoch 50/50 | Train Loss: 0.3860 | Val Loss: 0.3785 | Val Brier: 0.1099
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1108
+  Accuracy: 0.8729
+  Test Loss: 0.3802
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.1051 (48.7% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1108
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --lr 2e-3
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 139492.6544 | Val Loss: 3269.6183 | Val Brier: 0.1271
+  -> New best model! Brier: 0.1271
+Epoch 2/50 | Train Loss: 5038.2136 | Val Loss: 131.1038 | Val Brier: 0.1950
+Epoch 3/50 | Train Loss: 354.3911 | Val Loss: 0.6749 | Val Brier: 0.2409
+Epoch 4/50 | Train Loss: 95.9376 | Val Loss: 0.6491 | Val Brier: 0.2280
+Epoch 5/50 | Train Loss: 91.8431 | Val Loss: 0.6284 | Val Brier: 0.2177
+Epoch 6/50 | Train Loss: 59.2245 | Val Loss: 0.6100 | Val Brier: 0.2086
+Epoch 7/50 | Train Loss: 30.2514 | Val Loss: 0.5932 | Val Brier: 0.2004
+Epoch 8/50 | Train Loss: 40.6623 | Val Loss: 0.5781 | Val Brier: 0.1930
+Epoch 9/50 | Train Loss: 32.6732 | Val Loss: 0.5643 | Val Brier: 0.1864
+Epoch 10/50 | Train Loss: 17.6117 | Val Loss: 0.5518 | Val Brier: 0.1804
+Epoch 11/50 | Train Loss: 20.8922 | Val Loss: 0.5399 | Val Brier: 0.1748
+Early stopping at epoch 11
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1335
+  Accuracy: 0.8729
+  Test Loss: 3225.2549
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0824 (38.2% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1335
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --batch_size 32
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 178399.7802 | Val Loss: 3961.9446 | Val Brier: 0.1274
+  -> New best model! Brier: 0.1274
+Epoch 2/50 | Train Loss: 2450.2531 | Val Loss: 85.3171 | Val Brier: 0.1274
+  -> New best model! Brier: 0.1274
+Epoch 3/50 | Train Loss: 470.6265 | Val Loss: 25.7598 | Val Brier: 0.1274
+  -> New best model! Brier: 0.1274
+Epoch 4/50 | Train Loss: 162.0074 | Val Loss: 3.4594 | Val Brier: 0.1272
+  -> New best model! Brier: 0.1272
+Epoch 5/50 | Train Loss: 60.2800 | Val Loss: 0.4596 | Val Brier: 0.1394
+Epoch 6/50 | Train Loss: 39.3243 | Val Loss: 0.4742 | Val Brier: 0.1454
+Epoch 7/50 | Train Loss: 35.8083 | Val Loss: 0.4280 | Val Brier: 0.1267
+  -> New best model! Brier: 0.1267
+Epoch 8/50 | Train Loss: 28.9401 | Val Loss: 0.4074 | Val Brier: 0.1193
+  -> New best model! Brier: 0.1193
+Epoch 9/50 | Train Loss: 23.8181 | Val Loss: 0.3840 | Val Brier: 0.1121
+  -> New best model! Brier: 0.1121
+Epoch 10/50 | Train Loss: 22.4250 | Val Loss: 0.4001 | Val Brier: 0.1168
+Epoch 11/50 | Train Loss: 8.8576 | Val Loss: 0.4326 | Val Brier: 0.1283
+Epoch 12/50 | Train Loss: 20.1317 | Val Loss: 0.4004 | Val Brier: 0.1168
+Epoch 13/50 | Train Loss: 13.8783 | Val Loss: 0.3823 | Val Brier: 0.1114
+  -> New best model! Brier: 0.1114
+Epoch 14/50 | Train Loss: 19.4123 | Val Loss: 0.3941 | Val Brier: 0.1125
+Epoch 15/50 | Train Loss: 9.7586 | Val Loss: 0.4110 | Val Brier: 0.1205
+Epoch 16/50 | Train Loss: 8.6934 | Val Loss: 0.4106 | Val Brier: 0.1200
+Epoch 17/50 | Train Loss: 9.0598 | Val Loss: 0.3941 | Val Brier: 0.1146
+Epoch 18/50 | Train Loss: 7.4396 | Val Loss: 0.3837 | Val Brier: 0.1116
+Epoch 19/50 | Train Loss: 7.9367 | Val Loss: 0.3866 | Val Brier: 0.1123
+Epoch 20/50 | Train Loss: 9.0796 | Val Loss: 0.3869 | Val Brier: 0.1124
+Epoch 21/50 | Train Loss: 5.1479 | Val Loss: 0.3854 | Val Brier: 0.1119
+Epoch 22/50 | Train Loss: 6.6827 | Val Loss: 0.4067 | Val Brier: 0.1186
+Epoch 23/50 | Train Loss: 5.0280 | Val Loss: 0.4144 | Val Brier: 0.1212
+Early stopping at epoch 23
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1175
+  Accuracy: 0.8729
+  Test Loss: 0.4006
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0984 (45.6% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1175
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --batch_size 128
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 214004.8138 | Val Loss: 2582.4821 | Val Brier: 0.1268
+  -> New best model! Brier: 0.1268
+Epoch 2/50 | Train Loss: 5083.4106 | Val Loss: 222.7121 | Val Brier: 0.1267
+  -> New best model! Brier: 0.1267
+Epoch 3/50 | Train Loss: 477.3602 | Val Loss: 6.4718 | Val Brier: 0.1499
+Epoch 4/50 | Train Loss: 153.8751 | Val Loss: 0.6853 | Val Brier: 0.2216
+Epoch 5/50 | Train Loss: 120.7282 | Val Loss: 0.6191 | Val Brier: 0.2131
+Epoch 6/50 | Train Loss: 66.6259 | Val Loss: 0.5985 | Val Brier: 0.2030
+Epoch 7/50 | Train Loss: 37.9643 | Val Loss: 0.5798 | Val Brier: 0.1938
+Epoch 8/50 | Train Loss: 46.3418 | Val Loss: 0.5633 | Val Brier: 0.1859
+Epoch 9/50 | Train Loss: 29.5469 | Val Loss: 0.5490 | Val Brier: 0.1791
+Epoch 10/50 | Train Loss: 20.6254 | Val Loss: 0.5361 | Val Brier: 0.1730
+Epoch 11/50 | Train Loss: 22.4713 | Val Loss: 0.5243 | Val Brier: 0.1675
+Epoch 12/50 | Train Loss: 28.3609 | Val Loss: 0.5136 | Val Brier: 0.1626
+Early stopping at epoch 12
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1328
+  Accuracy: 0.8729
+  Test Loss: 232.7086
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0831 (38.5% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1328
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --use_top20
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 151713.5088 | Val Loss: 2602.5332 | Val Brier: 0.1269
+  -> New best model! Brier: 0.1269
+Epoch 2/50 | Train Loss: 2326.1170 | Val Loss: 218.2004 | Val Brier: 0.1303
+Epoch 3/50 | Train Loss: 561.4254 | Val Loss: 15.8664 | Val Brier: 0.1300
+Epoch 4/50 | Train Loss: 139.3781 | Val Loss: 2.9589 | Val Brier: 0.2257
+Epoch 5/50 | Train Loss: 70.7762 | Val Loss: 1.4185 | Val Brier: 0.2145
+Epoch 6/50 | Train Loss: 50.6630 | Val Loss: 0.6061 | Val Brier: 0.2067
+Epoch 7/50 | Train Loss: 33.4080 | Val Loss: 0.5873 | Val Brier: 0.1975
+Epoch 8/50 | Train Loss: 34.6906 | Val Loss: 0.5709 | Val Brier: 0.1895
+Epoch 9/50 | Train Loss: 19.8895 | Val Loss: 0.5564 | Val Brier: 0.1826
+Epoch 10/50 | Train Loss: 18.4326 | Val Loss: 0.5428 | Val Brier: 0.1761
+Epoch 11/50 | Train Loss: 5.8773 | Val Loss: 0.5304 | Val Brier: 0.1703
+Early stopping at epoch 11
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1332
+  Accuracy: 0.8729
+  Test Loss: 2599.0264
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0827 (38.3% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1332
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --dropout 0.2 --lr 5e-4
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 208843.4519 | Val Loss: 4324.3937 | Val Brier: 0.2719
+  -> New best model! Brier: 0.2719
+Epoch 2/50 | Train Loss: 6379.9912 | Val Loss: 414.6221 | Val Brier: 0.3955
+Epoch 3/50 | Train Loss: 1381.1866 | Val Loss: 73.4083 | Val Brier: 0.1274
+  -> New best model! Brier: 0.1274
+Epoch 4/50 | Train Loss: 520.0444 | Val Loss: 30.5411 | Val Brier: 0.1273
+  -> New best model! Brier: 0.1273
+Epoch 5/50 | Train Loss: 237.2399 | Val Loss: 3.0077 | Val Brier: 0.2475
+Epoch 6/50 | Train Loss: 62.3041 | Val Loss: 0.6676 | Val Brier: 0.2372
+Epoch 7/50 | Train Loss: 91.4967 | Val Loss: 0.6443 | Val Brier: 0.2256
+Epoch 8/50 | Train Loss: 61.0494 | Val Loss: 0.6244 | Val Brier: 0.2157
+Epoch 9/50 | Train Loss: 51.7273 | Val Loss: 0.6070 | Val Brier: 0.2071
+Epoch 10/50 | Train Loss: 42.7800 | Val Loss: 0.5914 | Val Brier: 0.1995
+Epoch 11/50 | Train Loss: 54.3474 | Val Loss: 0.5772 | Val Brier: 0.1926
+Epoch 12/50 | Train Loss: 46.5616 | Val Loss: 0.5644 | Val Brier: 0.1864
+Epoch 13/50 | Train Loss: 54.7088 | Val Loss: 0.5517 | Val Brier: 0.1803
+Epoch 14/50 | Train Loss: 77.0588 | Val Loss: 0.5412 | Val Brier: 0.1753
+Early stopping at epoch 14
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1338
+  Accuracy: 0.8402
+  Test Loss: 23.8450
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0820 (38.0% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1338
+Test Accuracy: 0.8402
+============================================================
+Loading MMLU Trace Dataset --dropout 0.2 --lr 5e-4 --conv_channels 128,256,256 --kernel_sizes 5,7,9
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 349639.9753 | Val Loss: 33666.6807 | Val Brier: 0.1265
+  -> New best model! Brier: 0.1265
+Epoch 2/50 | Train Loss: 14144.6032 | Val Loss: 1450.8275 | Val Brier: 0.1267
+Epoch 3/50 | Train Loss: 2140.7521 | Val Loss: 104.4655 | Val Brier: 0.1649
+Epoch 4/50 | Train Loss: 611.3597 | Val Loss: 18.5597 | Val Brier: 0.2230
+Epoch 5/50 | Train Loss: 294.5255 | Val Loss: 13.6515 | Val Brier: 0.2203
+Epoch 6/50 | Train Loss: 183.9940 | Val Loss: 8.0351 | Val Brier: 0.2126
+Epoch 7/50 | Train Loss: 126.2837 | Val Loss: 6.4506 | Val Brier: 0.2027
+Epoch 8/50 | Train Loss: 103.0545 | Val Loss: 0.5837 | Val Brier: 0.1938
+Epoch 9/50 | Train Loss: 81.4994 | Val Loss: 0.5685 | Val Brier: 0.1884
+Epoch 10/50 | Train Loss: 73.2481 | Val Loss: 0.5538 | Val Brier: 0.1813
+Epoch 11/50 | Train Loss: 59.2047 | Val Loss: 0.5406 | Val Brier: 0.1751
+Early stopping at epoch 11
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1324
+  Accuracy: 0.8729
+  Test Loss: 36209.2153
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0835 (38.7% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1324
+Test Accuracy: 0.8729
+============================================================
+Loading MMLU Trace Dataset --dropout 0.2 --lr 5e-4 --batch_size 32
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 184222.3325 | Val Loss: 10750.0039 | Val Brier: 0.1309
+  -> New best model! Brier: 0.1309
+Epoch 2/50 | Train Loss: 5213.5252 | Val Loss: 677.4630 | Val Brier: 0.1310
+Epoch 3/50 | Train Loss: 891.5923 | Val Loss: 88.2491 | Val Brier: 0.1274
+  -> New best model! Brier: 0.1274
+Epoch 4/50 | Train Loss: 300.6736 | Val Loss: 5.1416 | Val Brier: 0.1476
+Epoch 5/50 | Train Loss: 104.8630 | Val Loss: 1.5866 | Val Brier: 0.2463
+Epoch 6/50 | Train Loss: 44.1505 | Val Loss: 0.8544 | Val Brier: 0.2319
+Epoch 7/50 | Train Loss: 37.2743 | Val Loss: 0.6477 | Val Brier: 0.2200
+Epoch 8/50 | Train Loss: 25.6666 | Val Loss: 0.6186 | Val Brier: 0.2129
+Epoch 9/50 | Train Loss: 16.9638 | Val Loss: 0.6002 | Val Brier: 0.2038
+Epoch 10/50 | Train Loss: 12.7484 | Val Loss: 0.5834 | Val Brier: 0.1956
+Epoch 11/50 | Train Loss: 8.5824 | Val Loss: 0.5683 | Val Brier: 0.1883
+Epoch 12/50 | Train Loss: 6.5807 | Val Loss: 0.5550 | Val Brier: 0.1819
+Epoch 13/50 | Train Loss: 10.4501 | Val Loss: 0.5425 | Val Brier: 0.1760
+Early stopping at epoch 13
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1342
+  Accuracy: 0.8402
+  Test Loss: 91.9075
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0817 (37.9% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1342
+Test Accuracy: 0.8402
+============================================================
+Loading MMLU Trace Dataset --dropout 0.2 --lr 5e-4 --use_top20
+============================================================
+Loading MMLU Trace Dataset from antoine3/CSS2_UQ...
+Found cache at: C:\Users\pugpl\.cache\huggingface\hub\datasets--antoine3--CSS2_UQ\snapshots\90385acb72761ce4957c87c59a7a6d2f2127de43
+Loading examples.parquet...
+Loaded 14042 examples
+
+Total examples: 14042
+
+============================================================
+DATA QUALITY CHECK
+============================================================
+Parse successes: 3878 (27.6%)
+Parse failures: 10164 (72.4%)
+
+Filtered to parsed examples only: 3878 examples
+Correct answers in parsed examples: 87.4%
+
+============================================================
+DIAGNOSTIC CHECKS
+============================================================
+
+1. Class Distribution (Parsed Examples Only):
+   Correct: 3389 (87.4%)
+   Incorrect: 489 (12.6%)
+
+2. Majority Class Baseline:
+   Always predict majority class: 87.4% accuracy
+
+3. Average Logprob by Class:
+   Correct examples mean logprob: -0.1398
+   Incorrect examples mean logprob: -0.1659
+   Difference: 0.0261
+
+4. Logistic Regression Baseline (on avg logprob):
+   Accuracy: 0.8737
+   Brier Score: 0.1081
+   Majority class baseline on test set: 0.8737
+
+============================================================
+PREPARING DATA FOR TRAINING
+============================================================
+
+Sample logprobs shape: (181,)
+Valid examples after filtering: 3878
+Sequence lengths - min: 87, max: 192, mean: 166.6, std: 20.4
+
+Split sizes: train=2714, val=582, test=582
+Class distribution - train: 0.87, val: 0.87, test: 0.87
+
+Using max sequence length: 192
+Using top-20 logprobs: True
+
+Dataset sizes after preprocessing: train=2714, val=582, test=582
+
+Using device: cuda
+Model parameters: 116,417
+
+============================================================
+Training 1D CNN on Token Log-Probabilities
+============================================================
+Epoch 1/50 | Train Loss: 318092.4272 | Val Loss: 5425.1201 | Val Brier: 0.1273
+  -> New best model! Brier: 0.1273
+Epoch 2/50 | Train Loss: 7965.6234 | Val Loss: 443.5551 | Val Brier: 0.1273
+  -> New best model! Brier: 0.1273
+Epoch 3/50 | Train Loss: 800.4727 | Val Loss: 59.3485 | Val Brier: 0.1272
+  -> New best model! Brier: 0.1272
+Epoch 4/50 | Train Loss: 403.5002 | Val Loss: 26.9746 | Val Brier: 0.1814
+Epoch 5/50 | Train Loss: 206.9025 | Val Loss: 5.1474 | Val Brier: 0.2386
+Epoch 6/50 | Train Loss: 113.5901 | Val Loss: 0.6552 | Val Brier: 0.2311
+Epoch 7/50 | Train Loss: 101.8230 | Val Loss: 0.6322 | Val Brier: 0.2196
+Epoch 8/50 | Train Loss: 51.0336 | Val Loss: 0.6118 | Val Brier: 0.2095
+Epoch 9/50 | Train Loss: 64.6221 | Val Loss: 0.5936 | Val Brier: 0.2006
+Epoch 10/50 | Train Loss: 37.7097 | Val Loss: 0.5769 | Val Brier: 0.1925
+Epoch 11/50 | Train Loss: 34.9743 | Val Loss: 0.5614 | Val Brier: 0.1850
+Epoch 12/50 | Train Loss: 23.6525 | Val Loss: 0.5475 | Val Brier: 0.1784
+Epoch 13/50 | Train Loss: 33.3952 | Val Loss: 0.5343 | Val Brier: 0.1722
+Early stopping at epoch 13
+
+============================================================
+Test Set Evaluation
+============================================================
+
+1D CNN Results (on correctly parsed examples only):
+  Brier Score: 0.1337
+  Accuracy: 0.8402
+  Test Loss: 61.8738
+
+============================================================
+Baseline: Average Token Log-Probability
+============================================================
+Baseline Brier Score: 0.2159
+Baseline Accuracy: 0.6632
+
+============================================================
+Summary
+============================================================
+Brier Score Improvement: 0.0821 (38.0% lower)
+
+============================================================
+FINAL RESULTS
+============================================================
+Test Brier Score: 0.1337
+Test Accuracy: 0.8402
