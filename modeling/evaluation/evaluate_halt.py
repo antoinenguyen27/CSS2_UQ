@@ -34,7 +34,7 @@ def evaluate_model(model, dataloader, device):
     brier_scores = []
     with torch.no_grad():
         for inputs, targets, lengths in dataloader:
-            inputs, targets = inputs.to(device), targets.to(device)
+            inputs, targets, lengths = inputs.to(device), targets.to(device), lengths.to(device)
             probs = model.predict_proba(inputs, lengths)
             brier = brier_score(targets, probs)
             brier_scores.append(brier.item())
@@ -43,7 +43,7 @@ def evaluate_model(model, dataloader, device):
 def main():
     # Evaluation configuration
     BATCH_SIZE = 32
-    MODEL_PATH = 'best_halt_model.pth'  # Path to trained model checkpoint
+    MODEL_PATH = './checkpoints/best_halt_model.pth'  # Path to trained model checkpoint
 
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -58,11 +58,11 @@ def main():
     # Initialize model
     model = HALTModel(
         input_dim=25,
-        proj_dim=256,
-        hidden_size=512,
-        num_layers=8,
-        dropout=0.3,
-        top_q=0.1
+        proj_dim=128,
+        hidden_size=256,
+        num_layers=5,
+        dropout=0.4,
+        top_q=0.15
     ).to(device)
 
     # Load trained model checkpoint
