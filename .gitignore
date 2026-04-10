@@ -87,3 +87,4 @@ hf_home/
 coverage.xml
 *.sqlite3
 *.db
+.aider*
