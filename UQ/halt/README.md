@@ -4,13 +4,13 @@ This folder contains the **HALT** sequence model for binary correctness / uncert
 
 ## Setup
 
-From the **repository root** (`CSS2_UQ`), install dependencies from `modeling/halt/requirements.txt`:
+From the **repository root** (`CSS2_UQ`), install dependencies from `uq/halt/requirements.txt`:
 
 ```bash
 python -m pip install -r modeling/halt/requirements.txt
 ```
 
-Install the project in editable mode so `modeling` imports work cleanly everywhere:
+Install the project in editable mode so `uq` imports work cleanly everywhere:
 
 ```bash
 python -m pip install -e .
@@ -29,13 +29,13 @@ All commands below assume your **current working directory is the repo root** so
 Run training as a module (recommended):
 
 ```bash
-python -m modeling.halt.training.train_halt
+python -m uq.halt.training.train_halt
 ```
 
 Show all options:
 
 ```bash
-python -m modeling.halt.training.train_halt --help
+python -m uq.halt.training.train_halt --help
 ```
 
 ### Common arguments
@@ -62,10 +62,10 @@ python -m modeling.halt.training.train_halt --help
 
 ### TensorBoard
 
-Training prints the event directory on startup. By default, runs are under `modeling/halt/artifacts/runs/`. From the repo root:
+Training prints the event directory on startup. By default, runs are under `uq/halt/artifacts/runs/`. From the repo root:
 
 ```bash
-tensorboard --logdir=modeling/halt/artifacts/runs
+tensorboard --logdir=uq/halt/artifacts/runs
 ```
 
 ## Evaluate HALT
@@ -73,11 +73,11 @@ tensorboard --logdir=modeling/halt/artifacts/runs
 Evaluation loads a checkpoint, runs the full preprocessed dataset through the model, reports **Brier score**, and writes a **Markdown report**.
 
 ```bash
-python -m modeling.halt.evaluation.evaluate_halt
+python -m uq.halt.evaluation.evaluate_halt
 ```
 
 ```bash
-python -m modeling.halt.evaluation.evaluate_halt --help
+python -m uq.halt.evaluation.evaluate_halt --help
 ```
 
 ### Useful arguments
@@ -100,7 +100,7 @@ The evaluation script prints the Brier score and the path to the generated `.md`
 
 ## Artifacts (default paths)
 
-Generated files are kept under **`modeling/halt/artifacts/`** (gitignored):
+Generated files are kept under **`uq/halt/artifacts/`** (gitignored):
 
 | Path | Contents |
 | --- | --- |
@@ -110,15 +110,15 @@ Generated files are kept under **`modeling/halt/artifacts/`** (gitignored):
 
 ## Running scripts by file path
 
-If you prefer `python modeling/halt/training/train_halt.py`, set `PYTHONPATH` to the repo root so `import modeling` works, for example:
+If you prefer `python uq/halt/training/train_halt.py`, set `PYTHONPATH` to the repo root so `import modeling` works, for example:
 
 ```bash
 # Linux / macOS
-PYTHONPATH=. python modeling/halt/training/train_halt.py
+PYTHONPATH=. python uq/halt/training/train_halt.py
 
 # Windows PowerShell
 $env:PYTHONPATH = "."
-python modeling/halt/training/train_halt.py
+python uq/halt/training/train_halt.py
 ```
 
-Using `python -m modeling.halt.training.train_halt` from the repo root avoids this.
+Using `python -m uq.halt.training.train_halt` from the repo root avoids this.
