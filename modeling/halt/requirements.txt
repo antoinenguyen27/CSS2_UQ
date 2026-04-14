@@ -1,0 +1,7 @@
+torch
+datasets
+scikit-learn
+pandas
+numpy
+huggingface-hub
+tensorboard
