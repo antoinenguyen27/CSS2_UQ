@@ -7,8 +7,8 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from pathlib import Path
-from modeling.models.halt import HALTModel
-from modeling.preprocessing.preprocess_halt import HF_DATASET, preprocess
+from modeling.halt.models.halt import HALTModel
+from modeling.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
 
 class HaltDataset(Dataset):
     """PyTorch Dataset wrapper for HALT evaluation data."""
@@ -63,7 +63,7 @@ def write_markdown_report(
     args: argparse.Namespace,
 ) -> None:
     """Write evaluation summary to a markdown file."""
-    repo_root = Path(__file__).resolve().parent.parent.parent
+    repo_root = Path(__file__).resolve().parent.parent.parent.parent
     try:
         model_path_display = os.path.relpath(model_path, repo_root)
     except ValueError:
@@ -109,7 +109,7 @@ def parse_args() -> argparse.Namespace:
         "--checkpoint",
         type=Path,
         default=None,
-        help="Path to trained weights (.pth). Default: modeling/artifacts/checkpoints/best_halt_model.pth",
+        help="Path to trained weights (.pth). Default: modeling/halt/artifacts/checkpoints/best_halt_model.pth",
     )
     p.add_argument("--hf-dataset", type=str, default=HF_DATASET, help="Hugging Face dataset id for preprocess().")
     p.add_argument(
@@ -129,7 +129,7 @@ def parse_args() -> argparse.Namespace:
         "--output",
         type=Path,
         default=None,
-        help="Path for markdown report. Default: modeling/artifacts/evaluation/halt_eval_<timestamp>.md",
+        help="Path for markdown report. Default: modeling/halt/artifacts/evaluation/halt_eval_<timestamp>.md",
     )
     return p.parse_args()
 

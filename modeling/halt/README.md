@@ -4,14 +4,14 @@ This folder contains the **HALT** sequence model for binary correctness / uncert
 
 ## Setup
 
-From the **repository root** (`CSS2_UQ`), install dependencies from `modeling/requirements.txt`:
+From the **repository root** (`CSS2_UQ`), install dependencies from `modeling/halt/requirements.txt`:
 
 ```bash
 # Linux / macOS
-python -m pip install -r modeling/requirements.txt
+python -m pip install -r modeling/halt/requirements.txt
 
 # Windows PowerShell
-python -m pip install -r modeling/requirements.txt
+python -m pip install -r modeling/halt/requirements.txt
 ```
 
 Install the project in editable mode so `modeling` imports work cleanly everywhere:
@@ -33,13 +33,13 @@ All commands below assume your **current working directory is the repo root** so
 Run training as a module (recommended):
 
 ```bash
-python -m modeling.training.train_halt
+python -m modeling.halt.training.train_halt
 ```
 
 Show all options:
 
 ```bash
-python -m modeling.training.train_halt --help
+python -m modeling.halt.training.train_halt --help
 ```
 
 ### Common arguments
@@ -66,10 +66,10 @@ python -m modeling.training.train_halt --help
 
 ### TensorBoard
 
-Training prints the event directory on startup. By default, runs are under `modeling/artifacts/runs/`. From the repo root:
+Training prints the event directory on startup. By default, runs are under `modeling/halt/artifacts/runs/`. From the repo root:
 
 ```bash
-tensorboard --logdir=modeling/artifacts/runs
+tensorboard --logdir=modeling/halt/artifacts/runs
 ```
 
 ## Evaluate HALT
@@ -77,11 +77,11 @@ tensorboard --logdir=modeling/artifacts/runs
 Evaluation loads a checkpoint, runs the full preprocessed dataset through the model, reports **Brier score**, and writes a **Markdown report**.
 
 ```bash
-python -m modeling.evaluation.evaluate_halt
+python -m modeling.halt.evaluation.evaluate_halt
 ```
 
 ```bash
-python -m modeling.evaluation.evaluate_halt --help
+python -m modeling.halt.evaluation.evaluate_halt --help
 ```
 
 ### Useful arguments
@@ -90,7 +90,7 @@ python -m modeling.evaluation.evaluate_halt --help
 | --- | --- |
 | `--checkpoint` | Weights file (default: best checkpoint under Artifacts). |
 | `--hf-dataset` | Same preprocessing dataset id as training (must match how you trained). |
-| `--output` | Markdown report path (default: timestamped file under `modeling/artifacts/evaluation/`). |
+| `--output` | Markdown report path (default: timestamped file under `modeling/halt/artifacts/evaluation/`). |
 | `--device` | `auto`, `cpu`, or `cuda`. |
 | Architecture | Same flags as training; they must match the trained model. |
 
@@ -104,7 +104,7 @@ The evaluation script prints the Brier score and the path to the generated `.md`
 
 ## Artifacts (default paths)
 
-Generated files are kept under **`modeling/artifacts/`** (gitignored):
+Generated files are kept under **`modeling/halt/artifacts/`** (gitignored):
 
 | Path | Contents |
 | --- | --- |
@@ -114,15 +114,15 @@ Generated files are kept under **`modeling/artifacts/`** (gitignored):
 
 ## Running scripts by file path
 
-If you prefer `python modeling/training/train_halt.py`, set `PYTHONPATH` to the repo root so `import modeling` works, for example:
+If you prefer `python modeling/halt/training/train_halt.py`, set `PYTHONPATH` to the repo root so `import modeling` works, for example:
 
 ```bash
 # Linux / macOS
-PYTHONPATH=. python modeling/training/train_halt.py
+PYTHONPATH=. python modeling/halt/training/train_halt.py
 
 # Windows PowerShell
 $env:PYTHONPATH = "."
-python modeling/training/train_halt.py
+python modeling/halt/training/train_halt.py
 ```
 
-Using `python -m modeling.training.train_halt` from the repo root avoids this.
+Using `python -m modeling.halt.training.train_halt` from the repo root avoids this.

@@ -51,7 +51,7 @@ tmp/
 temp/
 
 # Model/data artifacts
-modeling/artifacts/
+modeling/halt/artifacts/
 artifacts/
 outputs/
 cache/
