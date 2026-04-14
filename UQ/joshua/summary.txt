@@ -1,0 +1,20 @@
+
+Test	Brier Score	Accuracy	Improvement over min‑max baseline (0.2159)
+--default	0.1105	0.8729	48.8%
+--conv_channels 32,64,64 --kernel_sizes 3,5,7 --dropout 0.3	0.1162	0.8729	46.2%
+--conv_channels 128,256,256 --kernel_sizes 5,7,9 --dropout 0.3	0.1127	0.8729	47.8%
+--dropout 0.2	0.1094	0.8729	49.3%
+--dropout 0.4	0.1105	0.8729	48.8%
+--dropout 0.5	0.1337	0.8402	38.0%
+--lr 5e-4	0.1108	0.8729	48.7%
+--lr 2e-3	0.1335	0.8729	38.2%
+--batch_size 32	0.1175	0.8729	45.6%
+--batch_size 128	0.1328	0.8729	38.5%
+--use_top20	0.1332	0.8729	38.3%
+--dropout 0.2 --lr 5e-4	0.1338	0.8402	38.0%
+--dropout 0.2 --lr 5e-4 --conv_channels 128,256,256 --kernel_sizes 5,7,9	0.1324	0.8729	38.7%
+--dropout 0.2 --lr 5e-4 --batch_size 32	0.1342	0.8402	37.9%
+--dropout 0.2 --lr 5e-4 --use_top20	0.1337	0.8402	38.0%
+Logistic Regression (avg logprob)	0.1081	0.8737	49.9%
+
+Simply taking avg log probs performed better than a calibrated cnn...
