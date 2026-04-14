@@ -7,10 +7,6 @@ This folder contains the **HALT** sequence model for binary correctness / uncert
 From the **repository root** (`CSS2_UQ`), install dependencies from `modeling/halt/requirements.txt`:
 
 ```bash
-# Linux / macOS
-python -m pip install -r modeling/halt/requirements.txt
-
-# Windows PowerShell
 python -m pip install -r modeling/halt/requirements.txt
 ```
 
