@@ -51,8 +51,13 @@ tmp/
 temp/
 
 # Model/data artifacts
-modeling/halt/artifacts/
-artifacts/
+# HALT: keep evaluation markdown under UQ/halt/artifacts/evaluation/ in git;
+# ignore large generated weights and TensorBoard runs only.
+UQ/halt/artifacts/checkpoints/
+UQ/halt/artifacts/runs/
+# Repo-root artifacts folder only (does not ignore UQ/halt/artifacts/evaluation/*.md).
+/artifacts/
+
 outputs/
 cache/
 .cache/

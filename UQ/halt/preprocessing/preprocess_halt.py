@@ -4,8 +4,8 @@ HALT preprocessing pipeline.
 Loads the CSS2_UQ dataset from HuggingFace, validates and filters rows,
 and computes (N, T_max, 25) feature sequences with binary is_correct labels.
 
-Called from train_halt.py:
-    from modeling.shared.preprocess import preprocess
+Called from training code, e.g.:
+    from UQ.halt.preprocessing.preprocess_halt import preprocess
     features, labels = preprocess()
 
 Returns:

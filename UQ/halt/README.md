@@ -1,16 +1,16 @@
-# Modeling (HALT)
+# HALT (UQ)
 
 This folder contains the **HALT** sequence model for binary correctness / uncertainty-style prediction from token-level features. Training and evaluation scripts live under `training/` and `evaluation/`.
 
 ## Setup
 
-From the **repository root** (`CSS2_UQ`), install dependencies from `uq/halt/requirements.txt`:
+From the **repository root** (`CSS2_UQ`), install dependencies:
 
 ```bash
-python -m pip install -r modeling/halt/requirements.txt
+python -m pip install -r UQ/halt/requirements.txt
 ```
 
-Install the project in editable mode so `uq` imports work cleanly everywhere:
+Install the project in editable mode so `UQ` package imports resolve:
 
 ```bash
 python -m pip install -e .
@@ -22,20 +22,20 @@ If you are using a fresh environment, upgrade pip first:
 python -m pip install --upgrade pip
 ```
 
-All commands below assume your **current working directory is the repo root** so imports resolve (`python -m modeling...`).
+All commands below assume your **current working directory is the repo root** so imports resolve (`python -m UQ.halt...`).
 
 ## Train HALT
 
 Run training as a module (recommended):
 
 ```bash
-python -m uq.halt.training.train_halt
+python -m UQ.halt.training.train_halt
 ```
 
 Show all options:
 
 ```bash
-python -m uq.halt.training.train_halt --help
+python -m UQ.halt.training.train_halt --help
 ```
 
 ### Common arguments
@@ -62,22 +62,22 @@ python -m uq.halt.training.train_halt --help
 
 ### TensorBoard
 
-Training prints the event directory on startup. By default, runs are under `uq/halt/artifacts/runs/`. From the repo root:
+Training prints the TensorBoard log directory as a **path relative to the repo root**. By default, runs are under `UQ/halt/artifacts/runs/`. From the repo root:
 
 ```bash
-tensorboard --logdir=uq/halt/artifacts/runs
+tensorboard --logdir=UQ/halt/artifacts/runs
 ```
 
 ## Evaluate HALT
 
-Evaluation loads a checkpoint, runs the full preprocessed dataset through the model, reports **Brier score**, and writes a **Markdown report**.
+Evaluation loads a checkpoint, runs the full preprocessed dataset through the model, reports **Brier score** and **accuracy**, and writes a **Markdown report** (checkpoint path in the report is repo-relative).
 
 ```bash
-python -m uq.halt.evaluation.evaluate_halt
+python -m UQ.halt.evaluation.evaluate_halt
 ```
 
 ```bash
-python -m uq.halt.evaluation.evaluate_halt --help
+python -m UQ.halt.evaluation.evaluate_halt --help
 ```
 
 ### Useful arguments
@@ -86,11 +86,28 @@ python -m uq.halt.evaluation.evaluate_halt --help
 | --- | --- |
 | `--checkpoint` | Weights file (default: best checkpoint under Artifacts). |
 | `--hf-dataset` | Same preprocessing dataset id as training (must match how you trained). |
-| `--output` | Markdown report path (default: timestamped file under `modeling/halt/artifacts/evaluation/`). |
+| `--output` | Markdown report path (default: timestamped file under `UQ/halt/artifacts/evaluation/`). |
 | `--device` | `auto`, `cpu`, or `cuda`. |
 | Architecture | Same flags as training; they must match the trained model. |
 
-The evaluation script prints the Brier score and the path to the generated `.md` report.
+The evaluation script prints the Brier score, accuracy, and the path to the generated `.md` report (repo-relative when possible).
+
+## Demo HALT
+
+Run a quick demo on a small subset of examples (prints per-sample **UQ confidence**, gold `is_correct` label, and sequence length). By default **`--sample-mode balanced`** picks the same number of **incorrect** (`is_correct=0`) and **correct** (`is_correct=1`) rows (up to `--num-examples // 2` per class, capped by how many exist). Odd `--num-examples` uses `n//2` per class (total even). Checkpoint and dataset lines are printed **relative to the repo root** when possible.
+
+In the table, **`label`** is `is_correct` (0 = answer wrong, 1 = answer right). **`uq_conf`** is the model’s **estimated probability the answer is correct** (same as `predict_proba` elsewhere). Summary lines and the optional confusion block use **`--threshold`** on `uq_conf` only for accuracy-style diagnostics (default 0.5).
+
+```bash
+python -m UQ.halt.demo_halt
+```
+
+Examples:
+
+```bash
+python -m UQ.halt.demo_halt --num-examples 20
+python -m UQ.halt.demo_halt --num-examples 20 --sample-mode random --seed 7
+```
 
 ## Data and splits
 
@@ -100,25 +117,20 @@ The evaluation script prints the Brier score and the path to the generated `.md`
 
 ## Artifacts (default paths)
 
-Generated files are kept under **`uq/halt/artifacts/`** (gitignored):
+Generated files live under **`UQ/halt/artifacts/`**. Checkpoints and TensorBoard runs are gitignored; you can commit evaluation markdown under `UQ/halt/artifacts/evaluation/` if you choose.
 
 | Path | Contents |
 | --- | --- |
-| `artifacts/checkpoints/best_halt_model.pth` | Best checkpoint (by validation Brier) unless `--checkpoint` overrides. |
-| `artifacts/runs/<timestamp>_<comment>/` | TensorBoard events (default run layout). |
-| `artifacts/evaluation/halt_eval_<timestamp>.md` | Evaluation Markdown report (unless `--output` is set). |
+| `UQ/halt/artifacts/checkpoints/best_halt_model.pth` | Best checkpoint (by validation Brier) unless `--checkpoint` overrides. |
+| `UQ/halt/artifacts/runs/<timestamp>_<comment>/` | TensorBoard events (default run layout). |
+| `UQ/halt/artifacts/evaluation/halt_eval_<timestamp>.md` | Evaluation Markdown report (unless `--output` is set). |
 
 ## Running scripts by file path
 
-If you prefer `python uq/halt/training/train_halt.py`, set `PYTHONPATH` to the repo root so `import modeling` works, for example:
+If you prefer running the `.py` file directly, set `PYTHONPATH` to the repo root so `import UQ` works:
 
 ```bash
-# Linux / macOS
-PYTHONPATH=. python uq/halt/training/train_halt.py
-
-# Windows PowerShell
-$env:PYTHONPATH = "."
-python uq/halt/training/train_halt.py
+PYTHONPATH=. python UQ/halt/training/train_halt.py
 ```
 
-Using `python -m uq.halt.training.train_halt` from the repo root avoids this.
+Using `python -m UQ.halt.training.train_halt` from the repo root avoids this.
