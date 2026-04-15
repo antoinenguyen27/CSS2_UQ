@@ -1,16 +1,40 @@
 import argparse
+import os
+import sys
 from datetime import datetime
+from pathlib import Path
+
+
+def _find_repo_root() -> Path:
+    root = Path(__file__).resolve()
+    for _ in range(12):
+        if (root / "pyproject.toml").is_file() and (root / "UQ").is_dir():
+            return root
+        parent = root.parent
+        if parent == root:
+            break
+        root = parent
+    return Path(__file__).resolve().parents[3]
+
+
+def _ensure_repo_on_path() -> None:
+    r = _find_repo_root()
+    s = str(r)
+    if s not in sys.path:
+        sys.path.insert(0, s)
+
+
+_ensure_repo_on_path()
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
-from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
-from modeling.halt.models.halt import HALTModel
-from modeling.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
+from UQ.halt.models.halt import HALTModel
+from UQ.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
@@ -122,7 +146,7 @@ def parse_args() -> argparse.Namespace:
         "--checkpoint",
         type=Path,
         default=None,
-        help="Path to save best model (.pth). Default: modeling/halt/artifacts/checkpoints/best_halt_model.pth",
+        help="Path to save best model (.pth). Default: UQ/halt/artifacts/checkpoints/best_halt_model.pth",
     )
     p.add_argument("--hf-dataset", type=str, default=HF_DATASET, help="Hugging Face dataset id for preprocess().")
     p.add_argument(
@@ -135,7 +159,7 @@ def parse_args() -> argparse.Namespace:
         "--tensorboard-dir",
         type=str,
         default=None,
-        help="TensorBoard event directory. Default: modeling/halt/artifacts/runs/<timestamp>_<comment>.",
+        help="TensorBoard event directory. Default: UQ/halt/artifacts/runs/<timestamp>_<comment>.",
     )
     p.add_argument(
         "--device",
@@ -152,6 +176,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--dropout", type=float, default=0.4)
     p.add_argument("--top-q", type=float, default=0.15)
     return p.parse_args()
+
+
+def _repo_rel(path: Path) -> str:
+    try:
+        return os.path.relpath(path.resolve(), _find_repo_root())
+    except ValueError:
+        return str(path)
 
 
 def main():
@@ -220,7 +251,7 @@ def main():
         tb_log_dir = artifacts_root / "runs" / f"{stamp}_{args.tensorboard_comment}"
     tb_log_dir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(log_dir=str(tb_log_dir))
-    print(f"TensorBoard log directory: {tb_log_dir}")
+    print(f"TensorBoard log directory: {_repo_rel(tb_log_dir)}")
 
     # Early stopping variables (best = lowest validation Brier)
     best_val_brier = float("inf")
@@ -253,7 +284,7 @@ def main():
             best_val_brier = val_brier
             patience_counter = 0
             torch.save(model.state_dict(), best_model_path)
-            print(f'New best model saved to {best_model_path} with val Brier: {val_brier:.4f}')
+            print(f'New best model saved to {_repo_rel(best_model_path)} with val Brier: {val_brier:.4f}')
         else:
             patience_counter += 1
             if patience_counter >= args.patience:

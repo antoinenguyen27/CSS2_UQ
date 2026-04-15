@@ -64,7 +64,7 @@ Use either:
 
 ## Example Tensor Construction
 
-The script [`examples/load_lstm_example.py`](/Users/an/Documents/CSS2_UQ/examples/load_lstm_example.py) shows a minimal loading flow. The core logic is:
+The script [`examples/load_lstm_example.py`](../examples/load_lstm_example.py) shows a minimal loading flow. The core logic is:
 
 ```python
 import numpy as np

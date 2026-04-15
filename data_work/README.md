@@ -67,7 +67,7 @@ Key fields include:
 - per-token top-20 candidate ids, token pieces, and logprobs
 - segment labels distinguishing `thinking`, `answer`, and `structure`
 
-See [docs/dataset.md](/Users/an/Documents/CSS2_UQ/docs/dataset.md) for the exact schema and invariants.
+See [docs/dataset.md](docs/dataset.md) for the exact schema and invariants.
 
 ## Compute and Runtime
 
@@ -141,10 +141,10 @@ modal volume get mmlu-trace-volume runs/<run_id>/manifest.json ./manifest.json
 
 ## Repo Layout
 
-- [`mmlu_trace_eval/modal_app.py`](/Users/an/Documents/CSS2_UQ/mmlu_trace_eval/modal_app.py): Modal app, asset preparation, evaluator class, and local entrypoint
-- [`docs/dataset.md`](/Users/an/Documents/CSS2_UQ/docs/dataset.md): dataset schema and invariants
-- [`docs/modeling_lstm.md`](/Users/an/Documents/CSS2_UQ/docs/modeling_lstm.md): how to consume the output for sequence models
-- [`examples/load_lstm_example.py`](/Users/an/Documents/CSS2_UQ/examples/load_lstm_example.py): minimal example for loading one training row
+- [`mmlu_trace_eval/modal_app.py`](../mmlu_trace_eval/modal_app.py): Modal app, asset preparation, evaluator class, and local entrypoint
+- [`docs/dataset.md`](docs/dataset.md): dataset schema and invariants
+- [`docs/modeling_lstm.md`](docs/modeling_lstm.md): how to consume the output for sequence models
+- [`examples/load_lstm_example.py`](examples/load_lstm_example.py): minimal example for loading one training row
 
 ## Using the Dataset
 
@@ -165,7 +165,7 @@ This is the correct shape for:
 - transformers over token-time features
 - hand-engineered trajectory-level calibrators
 
-For a concrete LSTM-oriented walkthrough, see [docs/modeling_lstm.md](/Users/an/Documents/CSS2_UQ/docs/modeling_lstm.md).
+For a concrete LSTM-oriented walkthrough, see [docs/modeling_lstm.md](docs/modeling_lstm.md).
 
 ## Notes for Teammates
 

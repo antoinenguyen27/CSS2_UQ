@@ -51,8 +51,8 @@ tmp/
 temp/
 
 # Model/data artifacts
-modeling/halt/artifacts/
-artifacts/
+UQ/halt/artifacts/checkpoints/
+UQ/halt/artifacts/runs/
 outputs/
 cache/
 .cache/

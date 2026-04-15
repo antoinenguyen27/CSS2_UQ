@@ -1,7 +1,7 @@
-# Modeling
+# UQ experiments
 
-Model-specific code lives in subfolders under `modeling/`.
+Model-specific code lives under `UQ/`.
 
-- HALT: `modeling/halt/`
+- HALT: `UQ/halt/`
 
-For HALT setup, training, and evaluation instructions, see `modeling/halt/README.md`.
+For HALT setup, training, and evaluation instructions, see `UQ/halt/README.md`.
