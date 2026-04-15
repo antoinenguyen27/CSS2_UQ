@@ -12,7 +12,6 @@ from mmlu_trace_eval.batching import PreparedRequest
 from .config import (
     APP_NAME,
     CACHE_ROOT,
-    DATASET_CONFIG,
     DATASET_ID,
     DATASET_ROOT,
     DEFAULT_EVALUATOR_CPU,
@@ -160,7 +159,6 @@ def prepare_assets() -> dict[str, Any]:
     if not dataset_ready.exists():
         ensure_dir(dataset_dir)
         for split in SUPPORTED_SPLITS:
-            # MMLU Pro has no named sub-config — omit name argument to load_dataset
             dataset = load_dataset(
                 DATASET_ID,
                 split=split,
@@ -173,10 +171,10 @@ def prepare_assets() -> dict[str, Any]:
                     {
                         "example_id": build_example_id(split, row["category"], question_idx),
                         "question_idx": question_idx,
-                        "subject": row["category"],       # MMLU Pro uses "category" not "subject"
+                        "subject": row["category"],
                         "question": row["question"],
-                        "choices": list(row["options"]),  # MMLU Pro uses "options" (10 items), not "choices"
-                        "gold_answer": row["answer"],     # already a letter like "A", no index conversion needed
+                        "choices": list(row["options"]),
+                        "gold_answer": row["answer"],
                     }
                 )
             import pyarrow as pa
@@ -191,7 +189,7 @@ def prepare_assets() -> dict[str, Any]:
         "model_revision": model_revision,
         "tokenizer_revision": model_revision,
         "dataset_id": DATASET_ID,
-        "dataset_config": DATASET_CONFIG,
+        "dataset_config": None,
         "dataset_revision": dataset_revision,
     }
     write_json(_asset_metadata_path(), asset_metadata)
