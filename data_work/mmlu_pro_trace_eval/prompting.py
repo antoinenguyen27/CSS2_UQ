@@ -5,6 +5,7 @@ from typing import Any
 
 from .config import (
     ANSWER_BLOCK_PATTERN,
+    ANSWER_LETTERS,
     ANSWER_PATTERN,
     SYSTEM_PROMPT,
     THINKING_PATTERN,
@@ -23,6 +24,9 @@ class ParsedAnswer:
 
 def build_messages(example: dict[str, Any]) -> list[dict[str, str]]:
     choices = example["choices"]
+    letters = ANSWER_LETTERS[: len(choices)]
+    choices_block = "\n".join(f"{l}. {c}" for l, c in zip(letters, choices))
+    thinking_scaffold = "\n".join(f"Option {l}: ..." for l in letters)
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {
@@ -30,16 +34,8 @@ def build_messages(example: dict[str, Any]) -> list[dict[str, str]]:
             "content": USER_PROMPT_TEMPLATE.format(
                 subject=example["subject"],
                 question=example["question"],
-                choice_a=choices[0],
-                choice_b=choices[1],
-                choice_c=choices[2],
-                choice_d=choices[3],
-                choice_e=choices[4],
-                choice_f=choices[5],
-                choice_g=choices[6],
-                choice_h=choices[7],
-                choice_i=choices[8],
-                choice_j=choices[9],
+                choices_block=choices_block,
+                thinking_scaffold=thinking_scaffold,
             ),
         },
     ]

@@ -1,5 +1,3 @@
-import pytest
-
 from mmlu_pro_trace_eval.prompting import build_messages, parse_answer
 
 
@@ -18,7 +16,7 @@ def test_build_messages_has_ten_choices():
     assert "J. 10" in content
 
 
-def test_build_messages_system_mentions_ten_options():
+def test_build_messages_system_prompt_is_generic():
     example = {
         "subject": "science",
         "question": "Q?",
@@ -26,7 +24,7 @@ def test_build_messages_system_mentions_ten_options():
     }
     messages = build_messages(example)
     system = messages[0]["content"]
-    assert "or J" in system
+    assert "provided options" in system
 
 
 def test_parse_answer_accepts_a_through_j():
@@ -57,10 +55,26 @@ def test_parse_answer_missing_tag():
     assert parsed.parse_error == "missing_answer_tag"
 
 
-def test_build_messages_raises_on_too_few_choices():
+def test_build_messages_handles_four_choices():
     example = {"subject": "math", "question": "Q?", "choices": ["a", "b", "c", "d"]}
-    with pytest.raises(IndexError):
-        build_messages(example)
+    messages = build_messages(example)
+    content = messages[1]["content"]
+    assert "A. a" in content
+    assert "D. d" in content
+    assert "E." not in content
+    assert "J." not in content
+
+
+def test_build_messages_handles_nine_choices():
+    example = {
+        "subject": "science",
+        "question": "Q?",
+        "choices": ["a", "b", "c", "d", "e", "f", "g", "h", "i"],
+    }
+    messages = build_messages(example)
+    content = messages[1]["content"]
+    assert "I. i" in content
+    assert "J." not in content
 
 
 def test_parse_answer_multiple_tags_uses_first():

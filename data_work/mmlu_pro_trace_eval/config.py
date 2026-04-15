@@ -60,23 +60,14 @@ For each question:
 1. Write your reasoning only inside <thinking>...</thinking>.
 2. Inside <thinking>, use this exact order:
    - Core concept
-   - Option A
-   - Option B
-   - Option C
-   - Option D
-   - Option E
-   - Option F
-   - Option G
-   - Option H
-   - Option I
-   - Option J
+   - Evaluate each provided option in order (Option A, Option B, ...)
    - Final decision
 3. After the thinking section, output exactly one answer tag:
    <answer>X</answer>
-   where X is A, B, C, D, E, F, G, H, I, or J.
+   where X is one of the letters corresponding to the provided options.
 4. Do not output anything after </answer>.
 5. Even if uncertain, you must choose exactly one answer.
-6. Take your time to carefully evaluate all ten options before committing to your final decision.
+6. Take your time to carefully evaluate all provided options before committing to your final decision.
 """
 
 USER_PROMPT_TEMPLATE = """Subject: {subject}
@@ -85,31 +76,13 @@ Question:
 {question}
 
 Choices:
-A. {choice_a}
-B. {choice_b}
-C. {choice_c}
-D. {choice_d}
-E. {choice_e}
-F. {choice_f}
-G. {choice_g}
-H. {choice_h}
-I. {choice_i}
-J. {choice_j}
+{choices_block}
 
 Respond exactly in this format:
 
 <thinking>
 Core concept: ...
-Option A: ...
-Option B: ...
-Option C: ...
-Option D: ...
-Option E: ...
-Option F: ...
-Option G: ...
-Option H: ...
-Option I: ...
-Option J: ...
+{thinking_scaffold}
 Final decision: ...
 </thinking>
 <answer>X</answer>
