@@ -7,8 +7,21 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from pathlib import Path
-from modeling.halt.models.halt import HALTModel
-from modeling.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
+from UQ.halt.models.halt import HALTModel
+from UQ.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
+
+
+def _repo_root() -> Path:
+    # UQ/halt/evaluation/evaluate_halt.py -> repo root
+    return Path(__file__).resolve().parent.parent.parent.parent
+
+
+def _repo_rel(path: Path) -> str:
+    try:
+        return os.path.relpath(path.resolve(), _repo_root())
+    except ValueError:
+        return str(path)
+
 
 class HaltDataset(Dataset):
     """PyTorch Dataset wrapper for HALT evaluation data."""
@@ -63,7 +76,7 @@ def write_markdown_report(
     args: argparse.Namespace,
 ) -> None:
     """Write evaluation summary to a markdown file."""
-    repo_root = Path(__file__).resolve().parent.parent.parent.parent
+    repo_root = _repo_root()
     try:
         model_path_display = os.path.relpath(model_path, repo_root)
     except ValueError:
@@ -109,7 +122,7 @@ def parse_args() -> argparse.Namespace:
         "--checkpoint",
         type=Path,
         default=None,
-        help="Path to trained weights (.pth). Default: modeling/halt/artifacts/checkpoints/best_halt_model.pth",
+        help="Path to trained weights (.pth). Default: UQ/halt/artifacts/checkpoints/best_halt_model.pth",
     )
     p.add_argument("--hf-dataset", type=str, default=HF_DATASET, help="Hugging Face dataset id for preprocess().")
     p.add_argument(
@@ -129,7 +142,7 @@ def parse_args() -> argparse.Namespace:
         "--output",
         type=Path,
         default=None,
-        help="Path for markdown report. Default: modeling/halt/artifacts/evaluation/halt_eval_<timestamp>.md",
+        help="Path for markdown report. Default: UQ/halt/artifacts/evaluation/halt_eval_<timestamp>.md",
     )
     return p.parse_args()
 
@@ -176,7 +189,7 @@ def main():
     # Load trained model checkpoint
     if model_path.exists():
         model.load_state_dict(torch.load(model_path, map_location=device))
-        print(f"Loaded model checkpoint from {model_path}")
+        print(f"Loaded model checkpoint from {_repo_rel(model_path)}")
     else:
         raise FileNotFoundError(f"Model checkpoint {model_path} not found")
 
@@ -194,7 +207,7 @@ def main():
         device=device,
         args=args,
     )
-    print(f"Wrote markdown report to {report_path}")
+    print(f"Wrote markdown report to {_repo_rel(report_path)}")
 
 if __name__ == '__main__':
     main()
