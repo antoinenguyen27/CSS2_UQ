@@ -188,7 +188,9 @@ def main():
 
     # Load trained model checkpoint
     if model_path.exists():
-        model.load_state_dict(torch.load(model_path, map_location=device))
+        model.load_state_dict(
+            torch.load(model_path, map_location=device, weights_only=True)
+        )
         print(f"Loaded model checkpoint from {_repo_rel(model_path)}")
     else:
         raise FileNotFoundError(f"Model checkpoint {model_path} not found")

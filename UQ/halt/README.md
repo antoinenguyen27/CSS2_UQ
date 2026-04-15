@@ -94,7 +94,9 @@ The evaluation script prints the Brier score, accuracy, and the path to the gene
 
 ## Demo HALT
 
-Run a quick demo on a small subset of examples (prints per-sample probability, prediction, label, and sequence length). By default **`--sample-mode balanced`** picks the same number of **incorrect** (`is_correct=0`) and **correct** (`is_correct=1`) rows (up to `--num-examples // 2` per class, capped by how many exist). Odd `--num-examples` uses `n//2` per class (total even). Checkpoint and dataset lines are printed **relative to the repo root** when possible.
+Run a quick demo on a small subset of examples (prints per-sample **UQ confidence**, gold `is_correct` label, and sequence length). By default **`--sample-mode balanced`** picks the same number of **incorrect** (`is_correct=0`) and **correct** (`is_correct=1`) rows (up to `--num-examples // 2` per class, capped by how many exist). Odd `--num-examples` uses `n//2` per class (total even). Checkpoint and dataset lines are printed **relative to the repo root** when possible.
+
+In the table, **`label`** is `is_correct` (0 = answer wrong, 1 = answer right). **`uq_conf`** is the model’s **estimated probability the answer is correct** (same as `predict_proba` elsewhere). Summary lines and the optional confusion block use **`--threshold`** on `uq_conf` only for accuracy-style diagnostics (default 0.5).
 
 ```bash
 python -m UQ.halt.demo_halt

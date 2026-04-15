@@ -14,10 +14,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--num-examples",
         type=int,
-        default=10,
+        default=20,
         help="Target number of examples. For 'balanced', uses min(n//2, n0, n1) per class (total 2× that, even).",
     )
-    p.add_argument("--seed", type=int, default=67, help="Seed for random sampling.")
+    p.add_argument("--seed", type=int, default=42, help="Seed for random sampling.")
     p.add_argument(
         "--sample-mode",
         type=str,
@@ -39,6 +39,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--num-layers", type=int, default=5)
     p.add_argument("--dropout", type=float, default=0.4)
     p.add_argument("--top-q", type=float, default=0.15)
+    p.add_argument(
+        "--threshold",
+        type=float,
+        default=0.5,
+        help="Probability threshold for pred=1 (model predicts is_correct).",
+    )
     return p.parse_args()
 
 
@@ -148,7 +154,9 @@ def main():
         dropout=args.dropout,
         top_q=args.top_q,
     ).to(device)
-    model.load_state_dict(torch.load(checkpoint, map_location=device))
+    model.load_state_dict(
+        torch.load(checkpoint, map_location=device, weights_only=True)
+    )
     model.eval()
 
     with torch.no_grad():
@@ -156,15 +164,40 @@ def main():
         l_t = torch.tensor(lengths, dtype=torch.long, device=device)
         probs = model.predict_proba(x_t, l_t).cpu().numpy()
 
-    preds = (probs >= 0.5).astype(np.float32)
+    thr = float(args.threshold)
+    preds = (probs >= thr).astype(np.float32)
     acc = float(np.mean(preds == y))
     brier = float(np.mean((y - probs) ** 2))
 
+    mask0 = y < 0.5
+    mask1 = y >= 0.5
+    n0, n1 = int(mask0.sum()), int(mask1.sum())
+    if n0:
+        print(
+            f"UQ conf for label=0 (incorrect): min={probs[mask0].min():.4f} "
+            f"mean={probs[mask0].mean():.4f} max={probs[mask0].max():.4f}"
+        )
+    if n1:
+        print(
+            f"UQ conf for label=1 (correct):   min={probs[mask1].min():.4f} "
+            f"mean={probs[mask1].mean():.4f} max={probs[mask1].max():.4f}"
+        )
+
+    pos = probs >= thr
+    tn = int((~pos & (y < 0.5)).sum())
+    fp = int((pos & (y < 0.5)).sum())
+    fn = int((~pos & (y >= 0.5)).sum())
+    tp = int((pos & (y >= 0.5)).sum())
+    print(
+        f"Confusion (rows; threshold={thr} on UQ conf): TN={tn} FP={fp} FN={fn} TP={tp} "
+        f"(positive = UQ conf ≥ threshold → predict is_correct)"
+    )
+
     print("")
     print(f"Demo on {n_show} samples | Accuracy: {acc:.4f} | Brier: {brier:.4f}")
-    print("idx\tlabel\tpred\tprob_correct\tlength")
+    print("idx\tlabel\tuq_conf\tlength")
     for i, idx in enumerate(indices):
-        print(f"{int(idx)}\t{int(y[i])}\t{int(preds[i])}\t{probs[i]:.4f}\t\t{int(lengths[i])}")
+        print(f"{int(idx)}\t{int(y[i])}\t{probs[i]:.4f}\t{int(lengths[i])}")
 
 
 if __name__ == "__main__":
