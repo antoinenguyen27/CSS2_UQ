@@ -92,11 +92,28 @@ python -m UQ.halt.evaluation.evaluate_halt --help
 | --- | --- |
 | `--checkpoint` | Weights file (default: best checkpoint under Artifacts). |
 | `--hf-dataset` | Same preprocessing dataset id as training (must match how you trained). |
-| `--output` | Markdown report path (default: timestamped file under `UQ/halt/artifacts/evaluation/`). |
+| `--output` | Markdown report path (default: timestamped file under `UQ/halt/evaluation/`). |
 | `--device` | `auto`, `cpu`, or `cuda`. |
 | Architecture | Same flags as training; they must match the trained model. |
 
 The evaluation script prints the Brier score, accuracy, and the path to the generated `.md` report (repo-relative when possible).
+
+## Demo HALT
+
+Run a quick demo on a small subset of examples (prints per-sample **UQ confidence**, gold `is_correct` label, and sequence length). By default **`--sample-mode balanced`** picks the same number of **incorrect** (`is_correct=0`) and **correct** (`is_correct=1`) rows (up to `--num-examples // 2` per class, capped by how many exist). Odd `--num-examples` uses `n//2` per class (total even). Checkpoint and dataset lines are printed **relative to the repo root** when possible.
+
+In the table, **`label`** is `is_correct` (0 = answer wrong, 1 = answer right). **`uq_conf`** is the model’s **estimated probability the answer is correct** (same as `predict_proba` elsewhere). Summary lines and the optional confusion block use **`--threshold`** on `uq_conf` only for accuracy-style diagnostics (default 0.5).
+
+```bash
+python -m UQ.halt.demo_halt
+```
+
+Examples:
+
+```bash
+python -m UQ.halt.demo_halt --num-examples 20
+python -m UQ.halt.demo_halt --num-examples 20 --sample-mode random --seed 7
+```
 
 ## Data and splits
 
@@ -106,20 +123,20 @@ The evaluation script prints the Brier score, accuracy, and the path to the gene
 
 ## Artifacts (default paths)
 
-Generated files live under **`UQ/halt/artifacts/`**. Checkpoints and TensorBoard runs are gitignored; you can commit evaluation markdown under `UQ/halt/artifacts/evaluation/` if you choose.
+Checkpoints and TensorBoard runs live under **`UQ/halt/artifacts/`** (gitignored). Evaluation Markdown reports are written next to the evaluation script by default:
 
 | Path | Contents |
 | --- | --- |
 | `UQ/halt/artifacts/checkpoints/best_halt_model.pth` | Best checkpoint (by validation Brier) unless `--checkpoint` overrides. |
 | `UQ/halt/artifacts/runs/<timestamp>_<comment>/` | TensorBoard events (default run layout). |
-| `UQ/halt/artifacts/evaluation/halt_eval_<timestamp>.md` | Evaluation Markdown report (unless `--output` is set). |
+| `UQ/halt/evaluation/halt_eval_<timestamp>.md` | Evaluation Markdown report (unless `--output` is set). |
 
 ## Running scripts by file path (optional)
 
-If `python -m ...` is not used, you can set `PYTHONPATH` to the repo root:
+If you prefer running the `.py` file directly instead of `python -m ...`, set `PYTHONPATH` to the repo root so `import UQ` works:
 
 ```bash
 PYTHONPATH=. python UQ/halt/training/train_halt.py
 ```
 
-Training and evaluation entrypoints also call a small bootstrap so `python UQ/halt/evaluation/evaluate_halt.py` from the repo checkout usually works without extra env vars.
+Training and evaluation entrypoints also call a small bootstrap so `python UQ/halt/evaluation/evaluate_halt.py` from the repo checkout usually works without extra env vars. Using `python -m UQ.halt.training.train_halt` from the repo root avoids needing `PYTHONPATH` for training.

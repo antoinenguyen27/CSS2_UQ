@@ -1,6 +1,9 @@
 import argparse
 import os
+<<<<<<< HEAD
 import sys
+=======
+>>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
 from datetime import datetime
 from pathlib import Path
 
@@ -178,9 +181,21 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
+<<<<<<< HEAD
 def _repo_rel(path: Path) -> str:
     try:
         return os.path.relpath(path.resolve(), _find_repo_root())
+=======
+def _repo_root() -> Path:
+    # UQ/halt/training/train_halt.py -> repo root
+    return Path(__file__).resolve().parent.parent.parent.parent
+
+
+def _repo_rel(path: Path) -> str:
+    root = _repo_root()
+    try:
+        return os.path.relpath(path.resolve(), root)
+>>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
     except ValueError:
         return str(path)
 

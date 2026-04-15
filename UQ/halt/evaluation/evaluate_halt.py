@@ -31,15 +31,33 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
+<<<<<<< HEAD
+=======
+from pathlib import Path
+>>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
 from UQ.halt.models.halt import HALTModel
 from UQ.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
 
 
+<<<<<<< HEAD
 def _repo_rel(path: Path) -> str:
     try:
         return os.path.relpath(path.resolve(), _find_repo_root())
     except ValueError:
         return str(path)
+=======
+def _repo_root() -> Path:
+    # UQ/halt/evaluation/evaluate_halt.py -> repo root
+    return Path(__file__).resolve().parent.parent.parent.parent
+
+
+def _repo_rel(path: Path) -> str:
+    try:
+        return os.path.relpath(path.resolve(), _repo_root())
+    except ValueError:
+        return str(path)
+
+>>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
 
 class HaltDataset(Dataset):
     """PyTorch Dataset wrapper for HALT evaluation data."""
@@ -94,7 +112,11 @@ def write_markdown_report(
     args: argparse.Namespace,
 ) -> None:
     """Write evaluation summary to a markdown file."""
+<<<<<<< HEAD
     repo_root = _find_repo_root()
+=======
+    repo_root = _repo_root()
+>>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
     try:
         model_path_display = os.path.relpath(model_path, repo_root)
     except ValueError:
@@ -160,7 +182,7 @@ def parse_args() -> argparse.Namespace:
         "--output",
         type=Path,
         default=None,
-        help="Path for markdown report. Default: UQ/halt/artifacts/evaluation/halt_eval_<timestamp>.md",
+        help="Path for markdown report. Default: UQ/halt/evaluation/halt_eval_<timestamp>.md",
     )
     return p.parse_args()
 
@@ -181,9 +203,9 @@ def main():
     else:
         model_path = Path(model_path).resolve()
 
-    artifacts_root = Path(__file__).resolve().parent.parent / "artifacts"
+    eval_dir = Path(__file__).resolve().parent
     if args.output is None:
-        report_path = artifacts_root / "evaluation" / f"halt_eval_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        report_path = eval_dir / f"halt_eval_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
     else:
         report_path = Path(args.output).resolve()
 
