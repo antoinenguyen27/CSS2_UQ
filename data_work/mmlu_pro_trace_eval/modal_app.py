@@ -12,6 +12,7 @@ from mmlu_trace_eval.batching import PreparedRequest
 from .config import (
     APP_NAME,
     CACHE_ROOT,
+    DATASET_CONFIG,
     DATASET_ID,
     DATASET_ROOT,
     DEFAULT_EVALUATOR_CPU,
@@ -43,13 +44,13 @@ from .config import (
 from .dataset import build_example_id, filter_examples, load_materialized_split, normalized_dataset_dir
 from .prompting import build_messages, count_prompt_tokens, render_prompt
 from mmlu_trace_eval.schema import (
-    build_example_record,
     build_token_step_records,
     compute_token_surfaces,
     normalize_topk,
     segment_token_surfaces,
     validate_example_record,
 )
+from .schema import build_example_record
 from mmlu_trace_eval.storage import (
     MetricsAccumulator,
     build_manifest,
@@ -189,7 +190,7 @@ def prepare_assets() -> dict[str, Any]:
         "model_revision": model_revision,
         "tokenizer_revision": model_revision,
         "dataset_id": DATASET_ID,
-        "dataset_config": None,
+        "dataset_config": DATASET_CONFIG,
         "dataset_revision": dataset_revision,
     }
     write_json(_asset_metadata_path(), asset_metadata)
