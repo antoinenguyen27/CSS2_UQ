@@ -22,7 +22,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["mmlu_trace_eval*"]
+include = ["mmlu_trace_eval*", "mmlu_pro_trace_eval*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
