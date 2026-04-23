@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
+from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import brier_score_loss, accuracy_score, f1_score
 import pyarrow.parquet as pq
@@ -295,23 +296,18 @@ def baseline_avg_logprob(df):
 # Data loader (same as your original)
 # ====================
 def load_mmlu_trace_dataset():
-    print("Loading MMLU Trace Dataset from antoine3/CSS2_UQ...")
-    cache_dir = Path.home() / ".cache" / "huggingface" / "hub"
-    dataset_dir = cache_dir / "datasets--antoine3--CSS2_UQ"
-    if dataset_dir.exists():
-        snapshots = list(dataset_dir.glob("snapshots/*"))
-        if snapshots:
-            latest_snapshot = max(snapshots, key=lambda p: p.stat().st_ctime)
-            print(f"Found cache at: {latest_snapshot}")
-            examples_files = list(latest_snapshot.glob("*.parquet"))
-            examples_files = [f for f in examples_files if 'examples' in str(f).lower() and 'token' not in str(f).lower()]
-            if examples_files:
-                print(f"Loading {examples_files[0].name}...")
-                table = pq.read_table(examples_files[0])
-                df = table.to_pandas()
-                print(f"Loaded {len(df)} examples")
-                return df
-    raise RuntimeError("Could not load dataset from cache")
+    print("Loading local MMLU dataset...")
+
+    path = Path("local_download_mmlu_rerun/examples.parquet") 
+
+    if not path.exists():
+        raise RuntimeError(f"File not found: {path}")
+
+    table = pq.read_table(path)
+    df = table.to_pandas()
+
+    print(f"Loaded {len(df)} examples from local file")
+    return df
 
 # ====================
 # Main execution
