@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 from datetime import datetime
@@ -231,6 +232,12 @@ def parse_args() -> argparse.Namespace:
         help="TensorBoard event directory. Default: UQ/halt/artifacts/runs/<timestamp>_<comment>.",
     )
     p.add_argument(
+        "--metrics-output",
+        type=Path,
+        default=None,
+        help="Optional JSON path to write final/best training metrics for external tuners.",
+    )
+    p.add_argument(
         "--device",
         type=str,
         default="auto",
@@ -325,6 +332,9 @@ def main():
     # Early stopping variables (balanced checkpointing on validation Brier + ECE)
     best_val_brier = float("inf")
     best_val_ece = float("inf")
+    best_val_f1 = float("-inf")
+    best_val_sharp = float("nan")
+    best_epoch = -1
     patience_counter = 0
 
     # Training loop
@@ -368,6 +378,9 @@ def main():
         if should_save:
             best_val_brier = val_brier
             best_val_ece = val_calib["ece"]
+            best_val_f1 = val_f1
+            best_val_sharp = val_sharp["mean_confidence_distance"]
+            best_epoch = epoch + 1
             patience_counter = 0
             torch.save(model.state_dict(), best_model_path)
             print(
@@ -384,6 +397,26 @@ def main():
         f'Training complete. Best validation Brier: {best_val_brier:.4f}, '
         f'Best validation ECE: {best_val_ece:.4f}'
     )
+    if args.metrics_output is not None:
+        metrics_path = Path(args.metrics_output).resolve()
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        serializable_args = {
+            key: str(value) if isinstance(value, Path) else value
+            for key, value in vars(args).items()
+        }
+        metrics = {
+            "best_epoch": best_epoch,
+            "best_val_brier": best_val_brier,
+            "best_val_ece": best_val_ece,
+            "best_val_f1": best_val_f1,
+            "best_val_sharpness_conf_distance": best_val_sharp,
+            "checkpoint": str(best_model_path.resolve()),
+            "tensorboard_dir": str(tb_log_dir.resolve()),
+            "hf_dataset": args.hf_dataset,
+            "args": serializable_args,
+        }
+        metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+        print(f"Wrote metrics summary to {_repo_rel(metrics_path)}")
     writer.close()
 
 if __name__ == '__main__':

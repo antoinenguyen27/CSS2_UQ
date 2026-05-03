@@ -5,3 +5,4 @@ pandas
 numpy
 huggingface-hub
 tensorboard
+optuna
