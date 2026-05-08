@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 from datetime import datetime
@@ -134,6 +135,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--checkpoint", type=Path, default=None)
     p.add_argument("--tensorboard-dir", type=str, default=None)
     p.add_argument("--tensorboard-comment", type=str, default="_halt_pro_training")
+    p.add_argument(
+        "--metrics-output",
+        type=Path,
+        default=None,
+        help="Optional JSON path to write final/best training metrics for external tuners.",
+    )
     p.add_argument("--device", type=str, default="auto", choices=("auto", "cpu", "cuda"))
     p.add_argument("--input-dim", type=int, default=25)
     p.add_argument("--proj-dim", type=int, default=128)
@@ -141,6 +148,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--num-layers", type=int, default=5)
     p.add_argument("--dropout", type=float, default=0.4)
     p.add_argument("--top-q", type=float, default=0.15)
+    p.add_argument("--weight-decay", type=float, default=0.0)
     return p.parse_args()
 
 
@@ -174,7 +182,7 @@ def main():
     n_neg = max(1, int((y_tr == 0).sum()))
     n_pos = max(1, int((y_tr == 1).sum()))
     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([n_neg / n_pos], dtype=torch.float32, device=device))
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     scheduler = ReduceLROnPlateau(optimizer, mode="min", factor=0.5, patience=5)
 
     if args.tensorboard_dir:
@@ -186,11 +194,14 @@ def main():
     writer = SummaryWriter(log_dir=str(tb_dir))
     print(f"TensorBoard log directory: {_repo_rel(tb_dir)}")
 
-    best_brier, best_ece, patience = float("inf"), float("inf"), 0
+    best_brier, best_ece, best_epoch, patience = float("inf"), float("inf"), 0, 0
+    best_val_f1 = 0.0
     for epoch in range(args.epochs):
         tr = run_epoch(model, train_loader, criterion, device, optimizer=optimizer)
         va = run_epoch(model, val_loader, criterion, device, optimizer=None)
         scheduler.step(va["brier"])
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
 
         for split, m in (("train", tr), ("val", va)):
             writer.add_scalar(f"{split}/loss", m["loss"], epoch)
@@ -216,6 +227,8 @@ def main():
         if should_save:
             best_brier = va["brier"]
             best_ece = va["calib"]["ece"]
+            best_val_f1 = va["f1"]
+            best_epoch = epoch + 1
             patience = 0
             torch.save(model.state_dict(), ckpt)
             print(f"Saved checkpoint: {_repo_rel(ckpt)} (val brier={best_brier:.4f}, val ece={best_ece:.4f})")
@@ -226,6 +239,27 @@ def main():
                 break
 
     writer.close()
+
+    if args.metrics_output is not None:
+        metrics_path = Path(args.metrics_output).resolve()
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        serializable_args = {
+            key: str(value) if isinstance(value, Path) else value
+            for key, value in vars(args).items()
+        }
+        metrics = {
+            "best_epoch": best_epoch,
+            "best_val_brier": best_brier,
+            "best_val_ece": best_ece,
+            "best_val_f1": best_val_f1,
+            "checkpoint": str(ckpt.resolve()),
+            "tensorboard_dir": str(tb_dir.resolve()),
+            "hf_dataset": args.hf_dataset,
+            "args": serializable_args,
+        }
+        metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+        print(f"Wrote metrics summary to {_repo_rel(metrics_path)}")
+
     print(f"Training complete. Best val brier={best_brier:.4f}, best val ece={best_ece:.4f}")
 
 

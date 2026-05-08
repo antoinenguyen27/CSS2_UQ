@@ -20,7 +20,7 @@ from datasets import load_dataset
 # Constants
 # ---------------------------------------------------------------------------
 
-HF_DATASET  = "auhsoJ69/mmlu_rerun"
+HF_DATASET  = "auhsoJ69/mmlu-pro-traces"
 MAX_LEN     = 192
 TOP_K       = 20
 FEATURE_DIM = 5 + TOP_K   # 5 engineered + 20 raw log-probs
