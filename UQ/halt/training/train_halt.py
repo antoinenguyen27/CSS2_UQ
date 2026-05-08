@@ -1,9 +1,7 @@
 import argparse
+import json
 import os
-<<<<<<< HEAD
 import sys
-=======
->>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
 from datetime import datetime
 from pathlib import Path
 
@@ -41,6 +39,47 @@ from UQ.halt.preprocessing.preprocess_halt import HF_DATASET, preprocess
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+
+def calibration_stats(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> dict:
+    """Compute ECE/MCE for binary probabilities."""
+    y_true = y_true.astype(np.float32).reshape(-1)
+    y_prob = np.clip(y_prob.astype(np.float32).reshape(-1), 0.0, 1.0)
+    if y_true.shape != y_prob.shape:
+        raise ValueError("y_true and y_prob must have the same shape")
+
+    edges = np.linspace(0.0, 1.0, n_bins + 1, dtype=np.float32)
+    bin_ids = np.minimum(np.digitize(y_prob, edges[1:], right=False), n_bins - 1)
+    total = y_true.size
+    ece = 0.0
+    mce = 0.0
+
+    for i in range(n_bins):
+        mask = bin_ids == i
+        count = int(mask.sum())
+        if count == 0:
+            continue
+        avg_conf = float(y_prob[mask].mean())
+        acc = float(y_true[mask].mean())
+        gap = abs(acc - avg_conf)
+        ece += (count / total) * gap
+        mce = max(mce, gap)
+
+    return {"ece": float(ece), "mce": float(mce)}
+
+
+def sharpness_stats(y_prob: np.ndarray) -> dict:
+    """
+    Compute sharpness proxies for binary probabilities.
+    - mean_confidence_distance: mean(|p - 0.5|), higher means sharper.
+    - mean_predictive_variance: mean(p * (1 - p)), lower means sharper.
+    """
+    p = np.clip(y_prob.astype(np.float32).reshape(-1), 0.0, 1.0)
+    return {
+        "mean_confidence_distance": float(np.mean(np.abs(p - 0.5))),
+        "mean_predictive_variance": float(np.mean(p * (1.0 - p))),
+    }
+
+
 class HaltDataset(Dataset):
     """PyTorch Dataset wrapper for HALT training data."""
     def __init__(self, X: np.ndarray, y: np.ndarray):
@@ -72,6 +111,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, writer, epoch):
     total_loss = 0
     all_preds = []
     all_labels = []
+    all_probs = []
     sse = 0.0
     n_brier = 0
 
@@ -96,6 +136,7 @@ def train_epoch(model, dataloader, optimizer, criterion, device, writer, epoch):
         preds = probs > 0.5
         all_preds.extend(preds.cpu().numpy())
         all_labels.extend(targets.cpu().numpy())
+        all_probs.extend(probs.detach().cpu().numpy())
 
         if batch_idx % 10 == 0:
             writer.add_scalar('train/loss', loss.item(), epoch * len(dataloader) + batch_idx)
@@ -103,15 +144,24 @@ def train_epoch(model, dataloader, optimizer, criterion, device, writer, epoch):
     # Calculate macro F1
     macro_f1 = f1_score(all_labels, all_preds, average='macro')
     train_brier = sse / n_brier
+    train_probs = np.array(all_probs, dtype=np.float32)
+    train_labels = np.array(all_labels, dtype=np.float32)
+    train_calib = calibration_stats(train_labels, train_probs, n_bins=10)
+    train_sharp = sharpness_stats(train_probs)
     writer.add_scalar('train/macro_f1', macro_f1, epoch)
     writer.add_scalar('train/brier', train_brier, epoch)
-    return total_loss / len(dataloader), macro_f1, train_brier
+    writer.add_scalar('train/ece', train_calib["ece"], epoch)
+    writer.add_scalar('train/mce', train_calib["mce"], epoch)
+    writer.add_scalar('train/sharpness_conf_distance', train_sharp["mean_confidence_distance"], epoch)
+    writer.add_scalar('train/sharpness_pred_variance', train_sharp["mean_predictive_variance"], epoch)
+    return total_loss / len(dataloader), macro_f1, train_brier, train_calib, train_sharp
 
 def eval_epoch(model, dataloader, criterion, device):
     model.eval()
     total_loss = 0
     all_preds = []
     all_labels = []
+    all_probs = []
     sse = 0.0
     n_brier = 0
 
@@ -130,11 +180,16 @@ def eval_epoch(model, dataloader, criterion, device):
             preds = probs > 0.5
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(targets.cpu().numpy())
+            all_probs.extend(probs.detach().cpu().numpy())
 
     # Calculate macro F1
     macro_f1 = f1_score(all_labels, all_preds, average='macro')
     val_brier = sse / n_brier
-    return total_loss / len(dataloader), macro_f1, val_brier
+    val_probs = np.array(all_probs, dtype=np.float32)
+    val_labels = np.array(all_labels, dtype=np.float32)
+    val_calib = calibration_stats(val_labels, val_probs, n_bins=10)
+    val_sharp = sharpness_stats(val_probs)
+    return total_loss / len(dataloader), macro_f1, val_brier, val_calib, val_sharp
 
 
 def parse_args() -> argparse.Namespace:
@@ -143,6 +198,18 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--lr", "--learning-rate", type=float, default=4.41e-4, dest="lr")
     p.add_argument("--epochs", type=int, default=100)
     p.add_argument("--patience", type=int, default=10, help="Early stopping patience (epochs without val Brier improvement).")
+    p.add_argument(
+        "--ece-tolerance",
+        type=float,
+        default=0.01,
+        help="Checkpoint guard: allow val ECE to worsen by at most this amount when val Brier improves.",
+    )
+    p.add_argument(
+        "--brier-tolerance",
+        type=float,
+        default=0.002,
+        help="Checkpoint tie window for Brier; within this, prefer lower val ECE.",
+    )
     p.add_argument("--val-split", type=float, default=0.2)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument(
@@ -165,6 +232,12 @@ def parse_args() -> argparse.Namespace:
         help="TensorBoard event directory. Default: UQ/halt/artifacts/runs/<timestamp>_<comment>.",
     )
     p.add_argument(
+        "--metrics-output",
+        type=Path,
+        default=None,
+        help="Optional JSON path to write final/best training metrics for external tuners.",
+    )
+    p.add_argument(
         "--device",
         type=str,
         default="auto",
@@ -181,21 +254,9 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-<<<<<<< HEAD
 def _repo_rel(path: Path) -> str:
     try:
         return os.path.relpath(path.resolve(), _find_repo_root())
-=======
-def _repo_root() -> Path:
-    # UQ/halt/training/train_halt.py -> repo root
-    return Path(__file__).resolve().parent.parent.parent.parent
-
-
-def _repo_rel(path: Path) -> str:
-    root = _repo_root()
-    try:
-        return os.path.relpath(path.resolve(), root)
->>>>>>> 3aa4ece0bb9852336fb7a2871ddd5201d03e1040
     except ValueError:
         return str(path)
 
@@ -268,45 +329,94 @@ def main():
     writer = SummaryWriter(log_dir=str(tb_log_dir))
     print(f"TensorBoard log directory: {_repo_rel(tb_log_dir)}")
 
-    # Early stopping variables (best = lowest validation Brier)
+    # Early stopping variables (balanced checkpointing on validation Brier + ECE)
     best_val_brier = float("inf")
+    best_val_ece = float("inf")
+    best_val_f1 = float("-inf")
+    best_val_sharp = float("nan")
+    best_epoch = -1
     patience_counter = 0
 
     # Training loop
     for epoch in range(args.epochs):
         # Train
-        train_loss, train_f1, train_brier = train_epoch(
+        train_loss, train_f1, train_brier, train_calib, train_sharp = train_epoch(
             model, train_loader, optimizer, criterion, device, writer, epoch
         )
 
         # Validate
-        val_loss, val_f1, val_brier = eval_epoch(model, val_loader, criterion, device)
+        val_loss, val_f1, val_brier, val_calib, val_sharp = eval_epoch(model, val_loader, criterion, device)
 
         # Log metrics
         writer.add_scalar('val/loss', val_loss, epoch)
         writer.add_scalar('val/macro_f1', val_f1, epoch)
         writer.add_scalar('val/brier', val_brier, epoch)
+        writer.add_scalar('val/ece', val_calib["ece"], epoch)
+        writer.add_scalar('val/mce', val_calib["mce"], epoch)
+        writer.add_scalar('val/sharpness_conf_distance', val_sharp["mean_confidence_distance"], epoch)
+        writer.add_scalar('val/sharpness_pred_variance', val_sharp["mean_predictive_variance"], epoch)
         print(
             f'Epoch {epoch+1}/{args.epochs} - Train Loss: {train_loss:.4f}, Train F1: {train_f1:.4f}, '
-            f'Train Brier: {train_brier:.4f}, Val Loss: {val_loss:.4f}, Val F1: {val_f1:.4f}, Val Brier: {val_brier:.4f}'
+            f'Train Brier: {train_brier:.4f}, Train ECE: {train_calib["ece"]:.4f}, '
+            f'Train Sharp(|p-0.5|): {train_sharp["mean_confidence_distance"]:.4f}, '
+            f'Val Loss: {val_loss:.4f}, Val F1: {val_f1:.4f}, Val Brier: {val_brier:.4f}, '
+            f'Val ECE: {val_calib["ece"]:.4f}, Val Sharp(|p-0.5|): {val_sharp["mean_confidence_distance"]:.4f}'
         )
 
         # Update learning rate scheduler
         scheduler.step(val_brier)
 
-        # Early stopping check based on validation Brier (lower is better)
-        if val_brier < best_val_brier:
+        # Balanced checkpointing:
+        # 1) Brier must improve and ECE must not degrade too much, OR
+        # 2) Brier is near-tied and ECE improves.
+        brier_improved = val_brier < (best_val_brier - 1e-12)
+        ece_guard_ok = val_calib["ece"] <= (best_val_ece + args.ece_tolerance)
+        brier_near_tie = val_brier <= (best_val_brier + args.brier_tolerance)
+        ece_improved = val_calib["ece"] < (best_val_ece - 1e-12)
+        should_save = (brier_improved and ece_guard_ok) or (brier_near_tie and ece_improved)
+
+        if should_save:
             best_val_brier = val_brier
+            best_val_ece = val_calib["ece"]
+            best_val_f1 = val_f1
+            best_val_sharp = val_sharp["mean_confidence_distance"]
+            best_epoch = epoch + 1
             patience_counter = 0
             torch.save(model.state_dict(), best_model_path)
-            print(f'New best model saved to {_repo_rel(best_model_path)} with val Brier: {val_brier:.4f}')
+            print(
+                f'New best model saved to {_repo_rel(best_model_path)} '
+                f'with val Brier: {val_brier:.4f}, val ECE: {val_calib["ece"]:.4f}'
+            )
         else:
             patience_counter += 1
             if patience_counter >= args.patience:
                 print(f'Early stopping at epoch {epoch+1}')
                 break
 
-    print(f'Training complete. Best validation Brier: {best_val_brier:.4f}')
+    print(
+        f'Training complete. Best validation Brier: {best_val_brier:.4f}, '
+        f'Best validation ECE: {best_val_ece:.4f}'
+    )
+    if args.metrics_output is not None:
+        metrics_path = Path(args.metrics_output).resolve()
+        metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        serializable_args = {
+            key: str(value) if isinstance(value, Path) else value
+            for key, value in vars(args).items()
+        }
+        metrics = {
+            "best_epoch": best_epoch,
+            "best_val_brier": best_val_brier,
+            "best_val_ece": best_val_ece,
+            "best_val_f1": best_val_f1,
+            "best_val_sharpness_conf_distance": best_val_sharp,
+            "checkpoint": str(best_model_path.resolve()),
+            "tensorboard_dir": str(tb_log_dir.resolve()),
+            "hf_dataset": args.hf_dataset,
+            "args": serializable_args,
+        }
+        metrics_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+        print(f"Wrote metrics summary to {_repo_rel(metrics_path)}")
     writer.close()
 
 if __name__ == '__main__':
