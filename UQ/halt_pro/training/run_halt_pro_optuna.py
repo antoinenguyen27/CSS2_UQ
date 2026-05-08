@@ -11,8 +11,8 @@ import optuna
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description=(
-            "Tune HALT hyperparameters with Optuna (TPE sampler), optimizing a weighted "
-            "combination of val_brier and val_ece from train_halt."
+            "Tune HALT-Pro hyperparameters with Optuna (TPE sampler), optimizing a weighted "
+            "combination of val_brier and val_ece from train_halt_pro."
         )
     )
     p.add_argument("--python", type=str, default=sys.executable)
@@ -20,15 +20,15 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--batch-size", type=int, default=32)
     p.add_argument("--val-split", type=float, default=0.2)
-    p.add_argument("--trials", type=int, default=8)
-    p.add_argument("--epochs", type=int, default=30)
-    p.add_argument("--patience", type=int, default=6)
+    p.add_argument("--trials", type=int, default=20)
+    p.add_argument("--epochs", type=int, default=60)
+    p.add_argument("--patience", type=int, default=12)
     p.add_argument("--brier-weight", type=float, default=0.7)
     p.add_argument("--ece-weight", type=float, default=0.3)
     p.add_argument(
         "--root",
         type=Path,
-        default=Path("UQ/halt/artifacts/optuna"),
+        default=Path("UQ/halt_pro/artifacts/optuna"),
         help="Output root for checkpoints, summaries, and study JSON.",
     )
     p.add_argument("--sampler-seed", type=int, default=42)
@@ -53,13 +53,25 @@ def main() -> None:
 
     sampler = optuna.samplers.TPESampler(seed=args.sampler_seed)
     study = optuna.create_study(direction="minimize", sampler=sampler)
+    # Enqueue best known params from first 8-trial search (Brier 0.2209)
+    study.enqueue_trial({
+        "lr": 0.00023951255499127385,
+        "dropout": 0.27818484499495255,
+        "hidden_size": 256,
+        "num_layers": 3,
+        "top_q": 0.1,
+        "weight_decay": 1e-6,
+        "batch_size": 32
+    })
 
     def objective(trial: optuna.Trial) -> float:
-        lr = trial.suggest_float("lr", 1e-4, 5e-4, log=True)
-        dropout = trial.suggest_float("dropout", 0.25, 0.45)
-        hidden_size = trial.suggest_categorical("hidden_size", [128, 192, 256])
-        num_layers = trial.suggest_categorical("num_layers", [3, 4, 5])
-        top_q = trial.suggest_categorical("top_q", [0.10, 0.15, 0.20, 0.25, 0.30])
+        lr = trial.suggest_float("lr", 5e-5, 8e-4, log=True)
+        dropout = trial.suggest_float("dropout", 0.2, 0.4)
+        hidden_size = trial.suggest_categorical("hidden_size", [128, 192, 256, 384])
+        num_layers = trial.suggest_int("num_layers", 2, 5)
+        top_q = trial.suggest_float("top_q", 0.05, 0.25)
+        weight_decay = trial.suggest_float("weight_decay", 1e-6, 1e-4, log=True)
+        batch_size = 16  # Reduced for 4GB GPU
 
         run_name = _trial_name(trial.number)
         ckpt = ckpt_root / f"{run_name}.pth"
@@ -70,13 +82,13 @@ def main() -> None:
         cmd = [
             args.python,
             "-m",
-            "UQ.halt.training.train_halt",
+            "UQ.halt_pro.training.train_halt_pro",
             "--hf-dataset",
             args.hf_dataset,
             "--seed",
             str(args.seed),
             "--batch-size",
-            str(args.batch_size),
+            str(batch_size),
             "--val-split",
             str(args.val_split),
             "--epochs",
@@ -93,6 +105,8 @@ def main() -> None:
             str(num_layers),
             "--top-q",
             str(top_q),
+            "--weight-decay",
+            str(weight_decay),
             "--checkpoint",
             str(ckpt),
             "--tensorboard-dir",

@@ -192,7 +192,9 @@ def main():
         f"ECE: {metrics['calib']['ece']:.4f}, Sharpness |p-0.5|: {metrics['sharp']['mean_confidence_distance']:.4f}"
     )
 
-    out = args.output or (Path(__file__).resolve().parent / f"halt_pro_eval_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md")
+    repo_root = _find_repo_root()
+    default_output_dir = repo_root / "UQ" / "halt_pro" / "evaluation"
+    out = args.output or (default_output_dir / f"halt_pro_eval_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md")
     out = Path(out).resolve()
     write_markdown_report(out, metrics, n_samples=len(x), model_path=model_path, args=args, device=device)
     print(f"Wrote markdown report to {_repo_rel(out)}")

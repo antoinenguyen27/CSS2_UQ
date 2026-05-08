@@ -81,6 +81,7 @@ hf_home/
 .vscode/
 *.swp
 *.swo
+AGENTS.md
 
 # Misc project-local noise
 coverage.xml

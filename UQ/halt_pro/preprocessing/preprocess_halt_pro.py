@@ -14,7 +14,7 @@ from urllib.request import urlopen, urlretrieve
 import pandas as pd
 import pyarrow.parquet as pq
 
-HF_DATASET = "auhsoJ69/mmlu_rerun"
+HF_DATASET = "auhsoJ69/mmlu-pro-traces"
 HF_DATA_FILE = "examples.parquet"
 MAX_LEN = 192
 TOP_K = 20
