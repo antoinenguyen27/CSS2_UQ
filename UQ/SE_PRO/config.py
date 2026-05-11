@@ -3,15 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import re
-from typing import Any
+from typing import Any, Sequence
 
 
-APP_NAME = "uq-semantic-entropy-mmlu"
-VOLUME_NAME = "mmlu-trace-volume"
+APP_NAME = "uq-semantic-entropy-mmlu-pro"
+VOLUME_NAME = "mmlu-pro-trace-volume"
 SECRET_NAME = "hf-auth"
 
 MODEL_ID = "google/gemma-3-12b-it"
-HF_DATASET = "auhsoJ69/mmlu_rerun"
+HF_DATASET = "auhsoJ69/mmlu-pro-traces"
+HF_DATA_FILE = "examples.parquet"
 
 VOLUME_ROOT = "/vol"
 MODEL_ROOT = f"{VOLUME_ROOT}/models"
@@ -28,22 +29,23 @@ MAX_NUM_SEQS = 224
 SMOKE_MAX_NUM_SEQS = 64
 SMOKE_LIMIT_THRESHOLD = 100
 MAX_NUM_BATCHED_TOKENS = 98_304
-MAX_MODEL_LEN = 2048
+MAX_MODEL_LEN = 3072
 
 DEFAULT_N_SAMPLES = 10
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_TOP_P = 0.95
-DEFAULT_MAX_TOKENS = 512
+DEFAULT_MAX_TOKENS = 2048
 DEFAULT_SEED = 42
 DEFAULT_EVAL_MODE = "full"
 DEFAULT_OUTPUT_DIR = RUNS_ROOT
 
-K_CHOICES = 4
+MIN_CHOICES = 3
+MAX_CHOICES = 10
 MIN_VALID_SAMPLES = 5
 MAX_RETRIES_PER_INVALID_SAMPLE = 3
-ANSWER_LETTERS = ("A", "B", "C", "D")
+ANSWER_LETTERS = ("A", "B", "C", "D", "E", "F", "G", "H", "I", "J")
 
-ANSWER_PATTERN = re.compile(r"<answer>\s*([ABCDabcd])\s*</answer>", re.DOTALL)
+ANSWER_PATTERN = re.compile(r"<answer>\s*([A-Ja-j])\s*</answer>", re.DOTALL)
 THINKING_PATTERN = re.compile(r"<thinking>(.*?)</thinking>", re.DOTALL)
 ANSWER_BLOCK_PATTERN = re.compile(r"<answer>(.*?)</answer>", re.DOTALL)
 
@@ -53,16 +55,14 @@ For each question:
 1. Write your reasoning only inside <thinking>...</thinking>.
 2. Inside <thinking>, use this exact order:
    - Core concept
-   - Option A
-   - Option B
-   - Option C
-   - Option D
+   - Evaluate each provided option in order (Option A, Option B, ...)
    - Final decision
 3. After the thinking section, output exactly one answer tag:
    <answer>X</answer>
-   where X is A, B, C, or D.
+   where X is one of the letters corresponding to the provided options.
 4. Do not output anything after </answer>.
 5. Even if uncertain, you must choose exactly one answer.
+6. Take your time to carefully evaluate all provided options before committing to your final decision.
 """
 
 USER_PROMPT_TEMPLATE = """Subject: {subject}
@@ -71,19 +71,13 @@ Question:
 {question}
 
 Choices:
-A. {choice_a}
-B. {choice_b}
-C. {choice_c}
-D. {choice_d}
+{choices_block}
 
 Respond exactly in this format:
 
 <thinking>
 Core concept: ...
-Option A: ...
-Option B: ...
-Option C: ...
-Option D: ...
+{thinking_scaffold}
 Final decision: ...
 </thinking>
 <answer>X</answer>
@@ -99,8 +93,15 @@ class ParsedAnswer:
     answer_text: str
 
 
+def answer_letters_for_choices(choices: Sequence[Any]) -> tuple[str, ...]:
+    return ANSWER_LETTERS[: len(choices)]
+
+
 def build_messages(example: dict[str, Any]) -> list[dict[str, str]]:
-    choices = example["choices"]
+    choices = list(example["choices"])
+    letters = answer_letters_for_choices(choices)
+    choices_block = "\n".join(f"{letter}. {choice}" for letter, choice in zip(letters, choices, strict=True))
+    thinking_scaffold = "\n".join(f"Option {letter}: ..." for letter in letters)
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {
@@ -108,10 +109,8 @@ def build_messages(example: dict[str, Any]) -> list[dict[str, str]]:
             "content": USER_PROMPT_TEMPLATE.format(
                 subject=example["subject"],
                 question=example["question"],
-                choice_a=choices[0],
-                choice_b=choices[1],
-                choice_c=choices[2],
-                choice_d=choices[3],
+                choices_block=choices_block,
+                thinking_scaffold=thinking_scaffold,
             ),
         },
     ]
@@ -176,7 +175,7 @@ def slugify(value: str) -> str:
 
 
 def default_run_id(eval_mode: str) -> str:
-    return f"gemma3-12b-it__semantic-entropy__{slugify(eval_mode)}__{utc_timestamp()}"
+    return f"gemma3-12b-it__semantic-entropy-mmlu-pro__{slugify(eval_mode)}__{utc_timestamp()}"
 
 
 def runtime_max_num_seqs(requested_eval_rows: int | None) -> int:

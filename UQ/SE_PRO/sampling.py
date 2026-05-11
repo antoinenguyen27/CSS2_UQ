@@ -8,15 +8,19 @@ from datasets import load_dataset
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from UQ.SE.config import (
+from UQ.SE_PRO.config import (
     ANSWER_LETTERS,
     DEFAULT_N_SAMPLES,
+    HF_DATA_FILE,
     HF_DATASET,
+    MAX_CHOICES,
     MAX_NUM_BATCHED_TOKENS,
     MAX_RETRIES_PER_INVALID_SAMPLE,
+    MIN_CHOICES,
     MIN_VALID_SAMPLES,
-    count_prompt_tokens,
+    answer_letters_for_choices,
     build_messages,
+    count_prompt_tokens,
     parse_answer,
     render_prompt,
 )
@@ -28,6 +32,7 @@ class PreparedQuestion:
     subject: str
     question: str
     choices: list[str]
+    answer_letters: tuple[str, ...]
     gold_answer: str
     is_correct: int
     source_split: str | None
@@ -46,8 +51,11 @@ class SampleRequest:
     seed: int
 
 
-def load_css2_uq_dataframe(hf_dataset: str = HF_DATASET) -> pd.DataFrame:
-    dataset = load_dataset(hf_dataset, data_files="examples.parquet")
+def load_mmlu_pro_trace_dataframe(
+    hf_dataset: str = HF_DATASET,
+    data_file: str = HF_DATA_FILE,
+) -> pd.DataFrame:
+    dataset = load_dataset(hf_dataset, data_files=data_file)
     return dataset["train"].to_pandas()
 
 
@@ -64,10 +72,16 @@ def validate_row(row: dict[str, Any]) -> tuple[bool, str]:
         return False, "missing subject"
     if not row.get("question"):
         return False, "missing question"
+
     choices = row.get("choices")
-    if choices is None or isinstance(choices, (str, bytes)) or not hasattr(choices, "__len__") or len(choices) != 4:
+    if choices is None or isinstance(choices, (str, bytes)) or not hasattr(choices, "__len__"):
         return False, "invalid choices"
-    if row.get("gold_answer") not in ANSWER_LETTERS:
+    if not MIN_CHOICES <= len(choices) <= MAX_CHOICES:
+        return False, "invalid choices"
+    if any(choice is None for choice in choices):
+        return False, "invalid choices"
+
+    if row.get("gold_answer") not in answer_letters_for_choices(choices):
         return False, "invalid gold_answer"
     return True, ""
 
@@ -144,10 +158,11 @@ def select_eval_partition(
 def prepare_questions(df: pd.DataFrame, tokenizer: Any) -> list[PreparedQuestion]:
     prepared: list[PreparedQuestion] = []
     for row in df.to_dict(orient="records"):
+        choices = list(row["choices"])
         example = {
             "subject": row["subject"],
             "question": row["question"],
-            "choices": list(row["choices"]),
+            "choices": choices,
         }
         messages = build_messages(example)
         prompt_text = render_prompt(tokenizer, messages)
@@ -157,7 +172,8 @@ def prepare_questions(df: pd.DataFrame, tokenizer: Any) -> list[PreparedQuestion
                 example_id=row["example_id"],
                 subject=row["subject"],
                 question=row["question"],
-                choices=list(row["choices"]),
+                choices=choices,
+                answer_letters=answer_letters_for_choices(choices),
                 gold_answer=row["gold_answer"],
                 is_correct=int(row["is_correct"]),
                 source_split=row.get("split"),
@@ -177,7 +193,7 @@ def batch_sample_requests(
     requests: list[SampleRequest],
     max_num_seqs: int,
     max_num_batched_tokens: int = MAX_NUM_BATCHED_TOKENS,
-    max_output_tokens: int = 512,
+    max_output_tokens: int = 2048,
 ) -> list[list[SampleRequest]]:
     batches: list[list[SampleRequest]] = []
     current: list[SampleRequest] = []
@@ -273,6 +289,8 @@ def sample_questions(
                 parsed = parse_answer(generated_text)
                 if not parsed.parse_success:
                     continue
+                if parsed.predicted_answer not in questions[request.question_index].answer_letters:
+                    continue
                 key = (request.question_index, request.sample_index)
                 slot_outputs[key] = generated_text
                 slot_answers[key] = parsed.predicted_answer
@@ -298,7 +316,7 @@ def sample_questions(
             print(
                 json.dumps(
                     {
-                        "event": "se_sampling_progress",
+                        "event": "se_pro_sampling_progress",
                         "processed_questions": question_index + 1,
                         "total_questions": len(questions),
                         "dropped_questions": dropped,
@@ -314,6 +332,7 @@ def sample_questions(
                 "source_split": question.source_split,
                 "gold_answer": question.gold_answer,
                 "is_correct": question.is_correct,
+                "choices": question.choices,
                 "valid_answers": valid_answers,
                 "missing_sample_count": missing_sample_count,
                 "drop_reason": drop_reason,
