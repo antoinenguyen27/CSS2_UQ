@@ -34,10 +34,10 @@ If `/vol/asset_metadata.json` is missing, `UQ/SE` will fail fast with an explici
 
 ## Smoke Test
 
-Run a small end-to-end Modal smoke test on 32 valid questions:
+Run a small end-to-end Modal smoke test on 32 held-out test questions:
 
 ```bash
-modal run UQ/SE/modal_se.py --eval-mode full --limit 32
+modal run UQ/SE/modal_se.py --eval-mode split --num-eval-rows 32 --n-samples 10
 ```
 
 This uses the reduced `max_num_seqs=64` startup profile so cold-start validation is safer before larger runs.
@@ -56,17 +56,20 @@ Evaluate with the 70/15/15 split for 1DCNN comparison. This executes only the he
 modal run UQ/SE/modal_se.py --eval-mode split
 ```
 
-Debug a larger but still bounded run:
+Run a budget pilot on a bounded number of held-out test questions:
 
 ```bash
-modal run UQ/SE/modal_se.py --eval-mode split --limit 256 --n-samples 10
+modal run UQ/SE/modal_se.py --eval-mode split --num-eval-rows 154 --n-samples 10
 ```
+
+`--num-eval-rows` caps the actual evaluated partition. In split mode, the pipeline first builds the 70/15/15 split from all valid rows, selects `test`, then evaluates the requested number of test rows. `0` means uncapped.
 
 Override sampling settings explicitly:
 
 ```bash
 modal run UQ/SE/modal_se.py -- \
-  --eval-mode full \
+  --eval-mode split \
+  --num-eval-rows 154 \
   --n-samples 10 \
   --temperature 0.7 \
   --top-p 0.95 \

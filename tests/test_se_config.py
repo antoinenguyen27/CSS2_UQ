@@ -1,4 +1,15 @@
-from UQ.SE.config import build_messages, parse_answer, runtime_max_num_seqs, SMOKE_MAX_NUM_SEQS, MAX_NUM_SEQS
+from UQ.SE.config import (
+    HF_DATASET,
+    MAX_NUM_SEQS,
+    SMOKE_MAX_NUM_SEQS,
+    build_messages,
+    parse_answer,
+    runtime_max_num_seqs,
+)
+
+
+def test_default_dataset_uses_resolved_mmlu_rerun():
+    assert HF_DATASET == "auhsoJ69/mmlu_rerun"
 
 
 def test_build_messages_shapes_four_choice_prompt():
@@ -21,6 +32,6 @@ def test_parse_answer_accepts_lowercase_and_multiple_tags():
     assert parsed.parse_error == "multiple_answer_tags"
 
 
-def test_runtime_max_num_seqs_uses_smoke_profile_for_small_limit():
+def test_runtime_max_num_seqs_uses_smoke_profile_for_small_eval_request():
     assert runtime_max_num_seqs(32) == SMOKE_MAX_NUM_SEQS
     assert runtime_max_num_seqs(None) == MAX_NUM_SEQS

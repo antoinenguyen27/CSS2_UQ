@@ -8,7 +8,7 @@ from typing import Any
 
 import modal
 
-from UQ.SE.config import (
+from UQ.SE_PRO.config import (
     APP_NAME,
     DEFAULT_EVAL_MODE,
     DEFAULT_MAX_TOKENS,
@@ -17,6 +17,8 @@ from UQ.SE.config import (
     DEFAULT_SEED,
     DEFAULT_TEMPERATURE,
     DEFAULT_TOP_P,
+    HF_DATA_FILE,
+    HF_DATASET,
     HF_DATASETS_CACHE,
     HF_HOME,
     MAX_MODEL_LEN,
@@ -112,9 +114,9 @@ def _load_runtime(requested_eval_rows: int | None) -> tuple[dict[str, Any], Path
     asset_metadata_path = _asset_metadata_path()
     if not asset_metadata_path.exists():
         raise FileNotFoundError(
-            "Missing /vol/asset_metadata.json. Run the MMLU asset preparation pipeline first "
-            "via data_work/mmlu_trace_eval/modal_app.py so the cached Gemma snapshot exists "
-            "on the shared Modal volume."
+            "Missing /vol/asset_metadata.json. Run the MMLU-Pro asset preparation pipeline first "
+            "via data_work/mmlu_pro_trace_eval/modal_app.py so the cached Gemma snapshot exists "
+            "on the dedicated MMLU-Pro Modal volume."
         )
 
     asset_metadata = _read_json(asset_metadata_path)
@@ -204,11 +206,11 @@ def run_semantic_entropy(
 ) -> dict[str, Any]:
     import pandas as pd
 
-    from UQ.SE.evaluation import build_results_frame, make_output_frame, summarize_partition
-    from UQ.SE.sampling import (
+    from UQ.SE_PRO.evaluation import build_results_frame, make_output_frame, summarize_partition
+    from UQ.SE_PRO.sampling import (
         build_eval_partitions,
         filter_valid_rows,
-        load_css2_uq_dataframe,
+        load_mmlu_pro_trace_dataframe,
         prepare_questions,
         sample_questions,
         select_eval_partition,
@@ -224,7 +226,7 @@ def run_semantic_entropy(
     started_at_utc = datetime.now(timezone.utc).isoformat()
     asset_metadata, _, tokenizer, llm, max_num_seqs = _load_runtime(num_eval_rows_value)
 
-    df = load_css2_uq_dataframe()
+    df = load_mmlu_pro_trace_dataframe()
     valid_df, filter_drops = filter_valid_rows(df)
     if valid_df.empty:
         raise RuntimeError("No valid rows remain after filtering.")
@@ -273,9 +275,12 @@ def run_semantic_entropy(
     primary_summary = split_summaries[primary_split]
     summary = {
         "method": "semantic_entropy",
+        "benchmark": "mmlu-pro",
         "eval_mode": eval_mode,
         "primary_eval_split": primary_split,
         "run_id": run_id,
+        "hf_dataset": HF_DATASET,
+        "hf_data_file": HF_DATA_FILE,
         "n_valid_source_rows": int(len(valid_df)),
         "num_eval_rows_requested": num_eval_rows_value,
         "n_questions_selected": int(n_questions_selected),
@@ -295,8 +300,11 @@ def run_semantic_entropy(
     manifest = {
         "run_id": run_id,
         "method": "semantic_entropy",
+        "benchmark": "mmlu-pro",
         "eval_mode": eval_mode,
         "primary_eval_split": primary_split,
+        "hf_dataset": HF_DATASET,
+        "hf_data_file": HF_DATA_FILE,
         "num_eval_rows_requested": num_eval_rows_value,
         "n_valid_source_rows": int(len(valid_df)),
         "n_questions_selected": int(n_questions_selected),

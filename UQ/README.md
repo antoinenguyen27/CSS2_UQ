@@ -3,7 +3,8 @@
 Model-specific code lives under `UQ/`.
 
 - HALT: `UQ/halt/`
-- Semantic Entropy: `UQ/SE/`
+- Semantic Entropy, MMLU: `UQ/SE/`
+- Semantic Entropy, MMLU-Pro: `UQ/SE_PRO/`
 - TimesFM: `UQ/timesfm/`
 
 For HALT setup, training, and evaluation instructions, see `UQ/halt/README.md`.

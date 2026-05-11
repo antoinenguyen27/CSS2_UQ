@@ -1,9 +1,16 @@
-# Semantic Entropy Runbook
+# Semantic Entropy Runbooks
 
-The semantic-entropy baseline runbook lives at `UQ/SE/runbook.md`.
+The MMLU semantic-entropy baseline runbook lives at `UQ/SE/runbook.md`.
+The MMLU-Pro semantic-entropy baseline runbook lives at `UQ/SE_PRO/runbook.md`.
 
-Quick smoke test:
+Quick MMLU smoke test:
 
 ```bash
-modal run UQ/SE/modal_se.py --eval-mode full --limit 32
+modal run UQ/SE/modal_se.py --eval-mode split --num-eval-rows 32 --n-samples 10
+```
+
+Quick MMLU-Pro smoke test:
+
+```bash
+modal run UQ/SE_PRO/modal_se_pro.py --eval-mode split --num-eval-rows 32 --n-samples 10
 ```

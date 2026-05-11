@@ -3,7 +3,13 @@ from types import SimpleNamespace
 import numpy as np
 import pandas as pd
 
-from UQ.SE.sampling import build_eval_partitions, filter_valid_rows, sample_questions, sample_seed
+from UQ.SE.sampling import (
+    build_eval_partitions,
+    filter_valid_rows,
+    sample_questions,
+    sample_seed,
+    select_eval_partition,
+)
 
 
 class FakeTokenizer:
@@ -63,6 +69,49 @@ def test_build_eval_partitions_preserves_total_count():
     assert sum(len(partition) for partition in partitions.values()) == len(df)
     assert set(partitions) == {"train", "val", "test"}
     assert len(partitions["test"]) == 3
+
+
+def test_select_eval_partition_caps_after_split():
+    rows = [_valid_row(f"e{i}", i % 2) for i in range(40)]
+    df = pd.DataFrame(rows)
+    partitions = build_eval_partitions(df, eval_mode="split", seed=42)
+
+    split_name, selected = select_eval_partition(
+        partitions,
+        eval_mode="split",
+        num_eval_rows=4,
+    )
+
+    assert split_name == "test"
+    assert set(selected) == {"test"}
+    assert len(selected["test"]) == 4
+    assert len(partitions["test"]) == 6
+
+
+def test_select_eval_partition_raises_when_request_exceeds_partition():
+    rows = [_valid_row(f"e{i}", i % 2) for i in range(20)]
+    df = pd.DataFrame(rows)
+    partitions = build_eval_partitions(df, eval_mode="split", seed=42)
+
+    import pytest
+
+    with pytest.raises(ValueError, match="num_eval_rows=4"):
+        select_eval_partition(partitions, eval_mode="split", num_eval_rows=4)
+
+
+def test_select_eval_partition_zero_keeps_entire_selected_partition():
+    rows = [_valid_row(f"e{i}", i % 2) for i in range(20)]
+    df = pd.DataFrame(rows)
+    partitions = build_eval_partitions(df, eval_mode="split", seed=42)
+
+    split_name, selected = select_eval_partition(
+        partitions,
+        eval_mode="split",
+        num_eval_rows=0,
+    )
+
+    assert split_name == "test"
+    assert len(selected["test"]) == len(partitions["test"])
 
 
 def test_sample_questions_runs_end_to_end_with_fake_llm():

@@ -44,13 +44,13 @@ Where `revision` is the SHA stored in `{VOLUME_ROOT}/asset_metadata.json` (writt
 
 ### 3. Dataset
 
-**Dataset ID:** `antoine3/CSS2_UQ`
+**Dataset ID:** `auhsoJ69/mmlu_rerun`
 
 Load the dataset exactly as `UQ/halt/preprocessing/preprocess_halt.py` does:
 
 ```python
 from datasets import load_dataset
-ds = load_dataset("antoine3/CSS2_UQ", data_files="examples.parquet")
+ds = load_dataset("auhsoJ69/mmlu_rerun", data_files="examples.parquet")
 df = ds["train"].to_pandas()
 ```
 
@@ -324,7 +324,7 @@ Pin versions loosely to match `data_work/mmlu_trace_eval/modal_app.py`.
 **Direct remote invocation:**
 
 ```bash
-modal run UQ/SE/modal_se.py --eval-mode full --limit 100
+modal run UQ/SE/modal_se.py --eval-mode split --num-eval-rows 154 --n-samples 10
 ```
 
 Because `UQ/SE/modal_se.py` exposes a single decorated Modal function, `modal run UQ/SE/modal_se.py ...` can invoke that function directly. If more decorated functions are ever added later, invoke the specific target explicitly, e.g. `modal run UQ/SE/modal_se.py::app.run_semantic_entropy ...`.
@@ -338,7 +338,7 @@ Because `UQ/SE/modal_se.py` exposes a single decorated Modal function, `modal ru
     secrets=[secret],      # same HF secret
     volumes={VOLUME_ROOT: volume},
 )
-def run_semantic_entropy(eval_mode="full", n_samples=10, temperature=0.7, top_p=0.95, max_tokens=512, seed=42, limit=0, run_name=""):
+def run_semantic_entropy(eval_mode="full", n_samples=10, temperature=0.7, top_p=0.95, max_tokens=512, seed=42, num_eval_rows=0, run_name=""):
     # All logic lives here: load cached model/tokenizer, load dataset,
     # sample, parse, evaluate, write results, return artifact paths.
     ...
@@ -359,7 +359,7 @@ In `split` mode, `train` and `val` are used only to define the held-out partitio
 | `--eval-mode` | full | `full` or `split` (see Section 7) |
 | `--seed` | 42 | Master random seed |
 | `--output-dir` | /vol/runs | Modal volume path for results |
-| `--limit` | 0 | Limit number of questions (for debugging; `0` means no limit) |
+| `--num-eval-rows` | 0 | Cap the actual selected eval partition; `0` means no cap |
 | `--run-name` | auto-generated | Optional explicit run id |
 
 `--device` is removed — execution is always on Modal GPU. `--output-dir` refers to a path on the Modal volume (e.g. inside `{VOLUME_ROOT}/runs/`), not a local filesystem.
